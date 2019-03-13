@@ -1,1 +1,25 @@
 theme: jekyll-theme-cayman
+
+# ---------------- #
+#   Main Configs   #
+# ---------------- #
+baseurl:
+url: https://www.ttzero.cn
+date_format: "ordinal"
+title: 奈留.智库
+subtitle: "Home page"
+description: "智库的个人博客"
+keywords: eec,excel,智库,奈留.智库
+timezone: Asia/Shanghai
+encoding: "utf-8"
+side_bar_repo_limit: 5
+
+# ---------------- #
+#      Author      #
+# ---------------- #
+author: guanquan.wang
+organization:
+organization_url:
+github_username: wangguanquan
+location: Suzhou, China
+email: guanquan.wang@yandex.com
