@@ -45,6 +45,11 @@ navs:
     label: 关于
 
 # ---------------- #
+#      Jekyll      #
+# ---------------- #
+paginate: 10
+
+# ---------------- #
 #      Search      #
 # ---------------- #
 simple_jekyll_search:
