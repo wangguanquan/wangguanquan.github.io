@@ -4,7 +4,7 @@ theme: jekyll-theme-cayman
 #   Main Configs   #
 # ---------------- #
 baseurl:
-url: https://www.ttzero.cn
+url: https://www.ttzero.org
 date_format: "ordinal"
 title: 『奈留·智库』
 subtitle: "Home page"
