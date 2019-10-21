@@ -96,7 +96,7 @@ run_by_user=
 http.server_port=3315
 ```
 
-##### 1.4.1 配置Storage
+##### 1.3.2 配置Storage
 
 ```
 sudo cp storage.conf.sample storage.conf
@@ -119,19 +119,7 @@ tracker_server=tracker.server2:22122
 http.server_port=8888
 ```
 
-##### 1.4.2 防火墙中打开跟踪端口
-
-```
-sudo vim /etc/sysconfig/iptables
-
-添加如下端口行：
--A INPUT -m state --state NEW -m tcp -p tcp --dport 22122 -j ACCEPT
-
-重启防火墙：
-sudo service iptables restart
-```
-
-### 1.5 防火墙中打开跟踪端口
+### 1.4 防火墙中打开跟踪端口
 
 ```
 sudo vim /etc/sysconfig/iptables
@@ -146,7 +134,7 @@ sudo vim /etc/sysconfig/iptables
 sudo service iptables restart
 ```
 
-### 1.6 启动tracker和storage
+### 1.5 启动tracker和storage
 ```
 # 启动
 fdfs_trackerd /etc/fdfs/tracker.conf start
@@ -157,7 +145,7 @@ tail -n10 /opt/fastdfs/storage/logs/storaged.log
 # 如果日志显示有错误信息，需要根据信息来查找错误原因
 ```
 
-### 1.7 测试
+### 1.6 测试
 测试使用`fdfs_test`命令，使用命令前需要配置`client.conf`文件
 
 ```
@@ -213,7 +201,7 @@ example file url: http://xxx.xxx.xxx.xxx/group1/M00/00/00/wKgHhl2pVruARflDAAHI8L
 
 删除测试文件`fdfs_test /etc/fdfs/client.conf delete group1 M00/00/00/wKgHhl2pVruARflDAAHI8Ld-dIU264.png`
 
-### 1.8 集群监控
+### 1.7 集群监控
 可以通过fdfs_monitor监控当前集群情况
 ```
 fdfs_monitor /etc/fdfs/client.conf
@@ -342,7 +330,7 @@ FastDFS 通过 Tracker 服务器，将文件放在 Storage 服务器存储， �
 客户端如果用这个文件 ID 在 192.168.100.2 上取文件,就会出现文件无法访问的错误。
 而 fastdfs-nginx-module 可以重定向文件链接到源服务器取文件，避免客户端由于复制延迟导致的文件无法访问错误。
 
-##### 1.2.1 下载最新版 FastDFS
+### 3.1 下载最新版 fastdfs-nginx-module
 ```
 # wget 下载
 wget https://github.com/happyfish100/fastdfs-nginx-module/archive/V1.20.tar.gz
@@ -351,13 +339,13 @@ wget https://github.com/happyfish100/fastdfs-nginx-module/archive/V1.20.tar.gz
 curl https://codeload.github.com/happyfish100/fastdfs-nginx-module/tar.gz/V1.20 > V1.20.tar.gz
 ```
 
-##### 1.2.2 解压
+### 3.2 解压
 
 ```
 tar -xvf V1.20.tar.gz
 ```
 
-##### 1.2.3 nginx中添加模块
+### 3.3 nginx中添加模块
 
 ```
 # 先跳到第2步下载的nginx源码中
@@ -385,7 +373,7 @@ In file included from ../fastdfs-nginx-module-1.20/src/ngx_http_fastdfs_module.c
 值修改为本机的include目录，比如我机器fastdfs include文件放在/usr/include/fastdfs目录，那将`/usr/include`
 添换原来的`ngx_module_incs`和`CORE_INCS`，并重新执行[1.2.3](#1.2.3)即可。
 
-##### 1.2.4 配置mod_fastdfs.conf
+### 3.4 配置mod_fastdfs.conf
 复制 fastdfs-nginx-module 源码中的配置文件到/etc/fdfs 目录， 并修改
 
 ```
@@ -410,7 +398,7 @@ cd /opt/soft/fastdfs-5.12/conf
 sudo cp anti-steal.jpg http.conf mime.types /etc/fdfs/
 ```
 
-##### 1.2.5 修改nginx.conf
+### 3.5 修改nginx.conf
 ```
 cd /usr/local/nginx
 # 配置配置文件
