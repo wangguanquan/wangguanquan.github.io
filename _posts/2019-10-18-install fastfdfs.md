@@ -239,6 +239,8 @@ make && make install
 chown -R nginx:nginx /usr/local/nginx
 ```
 
+**如果安装过程提示错误请参照[Installing NGINX Dependencies](https://docs.nginx.com/nginx/admin-guide/installing-nginx/installing-nginx-open-source/#sources)**
+
 ### 2.4 最简配置nginx.conf
 ```
 sudo vim conf/nginx.conf
