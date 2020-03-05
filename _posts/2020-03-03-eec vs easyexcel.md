@@ -2,23 +2,11 @@
 layout: post
 title: EEC vs easyexcel
 categories: Excel
-description: 比较EEC和alibaba开源easyexcel工具的速度和内存使用
+description: 比较EEC和alibaba开源easyexcel工具的使用便利性对比
 keywords: eec, easyexcel
 ---
 
-本文主要对比easyexcel和eec的使用便利性和性能，以下列出测试环境
-
-硬件:
-- CPU: 2.7 GHz Intel Core i5 (双核)
-- 内存: 8 GB 1867 MHz DDR3
-- 硬盘: SSD
-- 系统: macOS 10.12.6
-
-测试版本:
-- easyexcel: 2.1.6
-- eec: 0.4.2
-
-为了限制内存对速度的影响，测试过程中添加jvm参数`-Xmx64m -Xms16m`，限制最大堆内存为64MB
+本文主要对比easyexcel和eec的使用便利性和功能对比
 
 ### 1. 开始
 
@@ -47,9 +35,9 @@ keywords: eec, easyexcel
 - 底层不同，easyexcel底层为Apache POI，eec直接使用IO/NIO
 - easyexcel简化了接口导致无法设置样式，eec可以方便设置任意样式
 - easyexcel读取文件时忽略样式和字体也没有办法直接获取单元格的公式。
-- 数据量超过单个worksheet页时easyexcel无法自动分页，eec会分为多个worksheet保存数据
+- 数据量(excel07最大行1_048_576)超过单个worksheet页时easyexcel会抛异常，eec会分为多个worksheet保存数据
 
-相比之下eec更接近于Apache POI，而easyexcel更关注单元格的值
+相比之下eec更接近于Apache POI，而easyexcel更关注单元格的值而忽略其它不太关心的数据。
 
 ### 2. 使用方式
 
@@ -57,7 +45,7 @@ keywords: eec, easyexcel
 
 #### 2.1.1 小数据量
 
-对于小量数据可能直接将内容放到数组中一次完成写入
+对于小量数据可以直接将内容放到数组中一次完成写入
 
 以下代码中`defaultTestPath`是文件路径事先已创建好。
 
@@ -69,7 +57,7 @@ public void test5(List<Item> data) {
 }
 ```
 
-![test5.xlsx](/images/posts/test5.xlsx.png)
+![test5.xlsx](/images/posts/test5.png)
 
 eec写小文件
 
@@ -78,7 +66,7 @@ public void test6(List<Item> data) throws IOException {
     new Workbook("test6").addSheet(new ListSheet<>(data)).writeTo(defaultTestPath);
 }
 ```
-![test6.xlsx](/images/posts/test6.xlsx.png)
+![test6.xlsx](/images/posts/test6.png)
 
 #### 2.1.2 大数据量
 
@@ -101,13 +89,15 @@ public void test1() {
 eec写大文件
 
 ```
-new Workbook("Large EEC").addSheet(new ListSheet<LargeData>() {
-    int n = 0;
-    @Override
-    public List<LargeData> more() {
-        return n++ < 100 ? data() : null;
-    }
-}).writeTo(defaultTestPath);
+public void test2() {
+    new Workbook("Large EEC").addSheet(new ListSheet<LargeData>() {
+        int n = 0;
+        @Override
+        public List<LargeData> more() {
+            return n++ < 100 ? data() : null;
+        }
+    }).writeTo(defaultTestPath);
+}
 ```
 
 这里的data()方法模拟取数据过程，返回`List<LargeData>`类型。类似如下代码
@@ -128,4 +118,38 @@ private List<LargeData> data() {
 }
 ```
 
-以上是两个工具类处理大文件的不同方式，easyexcel采用push方式往ExcelWriter推送数据，eec采用pull方式在写完一块数据后再拉取下一块，至到空数组或null为止。
+以上是两个工具类处理大文件的不同方式，easyexcel采用push方式主动向ExcelWriter推送数据，eec采用pull方式在写完一块数据后再拉取下一块，至到返回空数组或null为止。
+
+#### 2.1.3 写多个worksheet页
+
+很多时候我们会分类将不同类别不同功能的数据写到不同的worksheet里，比如我们做一个表设计不会将每张表放不同的excel文件，更多的做法是将不同表写在不同的worksheet里。
+
+easyexcel写多worksheet方式
+
+```
+public void test7() {
+    ExcelWriter excelWriter = EasyExcel.write(defaultTestPath.resolve("test7.xlsx").toString()).build();
+    excelWriter.write(checks(), EasyExcel.writerSheet("帐单表").build());
+    excelWriter.write(customers(), EasyExcel.writerSheet("客户表").build());
+    excelWriter.write(c2CS(), EasyExcel.writerSheet("用户客户关系表").build());
+    excelWriter.finish();
+}
+```
+
+![test7.xlsx](/images/posts/test7.png)
+
+eec写多worksheet方式
+
+```
+public void test8() throws IOException {
+    new Workbook("test8")
+        .addSheet(new ListSheet<>("帐单表", checks()))
+        .addSheet(new ListSheet<>("客户表", customers()))
+        .addSheet(new ListSheet<>("用户客户关系表", c2CS()))
+        .writeTo(defaultTestPath);
+}
+```
+
+![test8.xlsx](/images/posts/test8.png)
+
+eec相对来说要简单一些，但easyexcel也不复杂。
