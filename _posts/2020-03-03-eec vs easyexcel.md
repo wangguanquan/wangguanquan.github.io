@@ -240,6 +240,39 @@ try (ExcelReader reader = ExcelReader.read(defaultTestPath.resolve("二年级学
 
 简单的内容输出可以使用`row.toString()`方法，该方法使用`|`分隔单元格的值，所以你可以像这样`reader.sheets().flatMap(Sheet::rows).forEach(System.out::println);`使用一行代码轻松把内容打印到控制台或保存为`.md`格式。
 
+eec还有一些比较亮眼的功能，如高亮，水印和code转为名称等一些实用的功能，如下代码展示如何将低于60分的学生标红且将分数显示为`不及格`
+
+```
+public void testStyleConversion() throws IOException {
+    new Workbook("testStyleConversion") // 文件名
+        .setCreator("奈留·智库") // 作者
+        .setCompany("Copyright (c) 2020") // 公司名
+        .setWaterMark(WaterMark.of("Secret")) // 水印
+        .setAutoSize(true) // 自动计算列宽
+        .addSheet(new ListSheet<>("期末成绩", Student.randomTestData(20)
+            , new org.ttzero.excel.entity.Sheet.Column("学号", "id", int.class)
+            , new org.ttzero.excel.entity.Sheet.Column("姓名", "name", String.class)
+            , new org.ttzero.excel.entity.Sheet.Column("成绩", "score", int.class)
+            // 低于60分显示`不及格`
+            .setProcessor(n -> n < 60 ? "不及格" : n)
+            // 低于60分单元格标红
+            .setStyleProcessor((o, style, sst) -> {
+                if ((int)o < 60) {
+                    style = Styles.clearFill(style) | sst.addFill(new Fill(Color.red));
+                }
+                return style;
+            })
+        )
+    )
+    .writeTo(defaultTestPath);
+}
+```
+
+最终生成文件如下
+![](../images/posts/testStyleConversion.png)
+![](../images/posts/properties.png)
+
+
 ### 3. 后记
 
 easyexcel支持更低的JDK版本，eec使用了更灵活的设计模式，同时所有的低层代码均是独立实现，意味着它的依懒非常小。但是eec现阶段鲜有人使用有很多BUG也就无从发现，稳定性还有待考验。
