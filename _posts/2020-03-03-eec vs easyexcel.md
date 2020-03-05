@@ -13,7 +13,7 @@ keywords: eec, easyexcel
 #### 关于easyexcel
 
 [easyexcel](https://github.com/alibaba/easyexcel)在Apache POI基础上包装而来，主要为了降低内存使用防止OOM发生，
-当然使用方法比原生的POI要简结很多，github上有12.9k Star，国内应该有大量用户。
+当然使用方法比原生的POI要简结很多，github上有12.9k Star，国内有大量用户。
 
 引用作者总结核心原理：
 1. 文件解压、文件读取通过文件形式
@@ -33,9 +33,11 @@ keywords: eec, easyexcel
 
 简单总结两个工具的不同：
 - 底层不同，easyexcel底层为Apache POI，eec直接使用IO/NIO
+- easyexcel最低支持JDK7，eec最低支持JDK8
 - easyexcel简化了接口导致无法设置样式，eec可以方便设置任意样式
 - easyexcel读取文件时忽略样式和字体也没有办法直接获取单元格的公式。
 - 数据量(excel07最大行1_048_576)超过单个worksheet页时easyexcel会抛异常，eec会分为多个worksheet保存数据
+- easyexcel对常用类型缺少支持（char, Timestamp, time, LocalDate, LocalDateTime, LocalTime）你必须为这些类型指定自定义Converter
 
 相比之下eec更接近于Apache POI，而easyexcel更关注单元格的值而忽略其它不太关心的数据。
 
@@ -153,3 +155,93 @@ public void test8() throws IOException {
 ![test8.xlsx](/images/posts/test8.png)
 
 eec相对来说要简单一些，但easyexcel也不复杂。
+
+### 2.2 读文件
+
+easyexcel在读文件时使用`ReadListener`来监听每行数据，这样可以做到边解析文件边做业务逻辑（插库或其它），不用把文件解析完成后再做业务逻辑，以下是解析图示：
+![easyexcel解析图示](/images/posts/easyexcel解析图示.png)
+
+eec采用迭代模式（迭代是不是一种设计模式很多人讨论），同样做到边解析文件边做业务逻辑，解决POI的高内存问题。
+![eec解析图示](/images/posts/eec解析图示.png)
+
+从两者图示大致可以看出两者的设计与写文件时正好相反。easyexcel通过监听主动把行数据推给用户，eec这边需要用户主动拉数据，用户真正需要某行数据时才再去解析它。
+
+#### 2.2.1 easyexcel读文件
+
+```
+public void test3() {
+    EasyExcel.read(defaultTestPath.resolve("Large easyexcel.xlsx").toFile(), LargeData.class,
+    new AnalysisEventListener<LargeData>() {
+
+        @Override
+        public void invoke(LargeData data, AnalysisContext context) {
+            // 业务处理
+        }
+
+        @Override
+        public void doAfterAllAnalysed(AnalysisContext context) { }
+    }).headRowNumber(1).sheet().doRead();
+}
+```
+
+你需要实现一个`ReaderListener`来处理行数据。
+
+#### 2.2.2 eec读文件
+
+```
+try (ExcelReader reader = ExcelReader.read(defaultTestPath.resolve("Large easyexcel.xlsx"))) {
+    reader.sheets() // 解析所有worksheet
+        .flatMap(Sheet::dataRows) // 只取数据行，跳过表头
+        .map(row -> row.to(LargeData.class)) // 转为实体对象
+        .forEach(o -> {
+            // 业务处理
+        });
+} catch (IOException e) {
+    e.printStackTrace();
+}
+```
+
+由于eec采用迭代模式所以可以使用JDK8的Stream全部功能。数据量小的时候可以将数据全部放入内存像下面这样
+
+```
+try (ExcelReader reader = ExcelReader.read(defaultTestPath.resolve("Large easyexcel.xlsx"))) {
+    List<LargeData> list = reader.sheets()
+        .flatMap(Sheet::dataRows)
+        .map(row -> row.to(LargeData.class))
+        .collect(Collectors.toList());
+    // 业务处理
+
+} catch (IOException e) {
+    e.printStackTrace();
+}
+```
+
+easyexcel取出的内容必须使用`ReaderListener<T>`来接收，也就是说必须转为对象（可以是实体或者Map），eec提供与JDBC类似接口，你可以使用`row.getX(columnNumber)`获取指定列的值，对于读非规则表格或非表格这是非常有效的。
+
+示例：
+
+获取excel文件中所有学生的姓名并去重
+
+```
+try (ExcelReader reader = ExcelReader.read(defaultTestPath.resolve("二年级学生.xlsx"))) {
+    List<String> names = reader.sheet(0) // 只取第一个worksheet页
+        .dataRows()
+        .map(row -> row.getString("姓名")) // 只取姓名列
+        .distinct() // 去重
+        .collect(Collectors.toList());
+    // 业务处理
+
+} catch (IOException e) {
+    e.printStackTrace();
+}
+```
+
+不要试图将数据转为Map类型，因为每个Map都需要保存表头和单元格值，这将极大的消耗内存。
+
+简单的内容输出可以使用`row.toString()`方法，该方法使用`|`分隔单元格的值，所以你可以像这样`reader.sheets().flatMap(Sheet::rows).forEach(System.out::println);`使用一行代码轻松把内容打印到控制台或保存为`.md`格式。
+
+### 3. 后记
+
+easyexcel支持更低的JDK版本，eec使用了更灵活的设计模式，同时所有的低层代码均是独立实现，意味着它的依懒非常小。但是eec现阶段鲜有人使用有很多BUG也就无从发现，稳定性还有待考验。
+
+[下一篇将对比两者在各数据量下的读写性能](/eec vs easyexcel(二).html)
