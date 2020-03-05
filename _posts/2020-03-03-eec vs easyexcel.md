@@ -275,6 +275,6 @@ public void testStyleConversion() throws IOException {
 
 ### 3. 后记
 
-easyexcel支持更低的JDK版本，eec使用了更灵活的设计模式，同时所有的低层代码均是独立实现，意味着它的依懒非常小。但是eec现阶段鲜有人使用有很多BUG也就无从发现，稳定性还有待考验。
+easyexcel支持更低的JDK版本，eec使用了更灵活的设计模式，同时所有的底层代码均是独立实现，意味着它的依懒非常小。但是eec现阶段鲜有人使用有很多BUG也就无从发现，稳定性还有待考验。
 
 [下一篇将对比两者在各数据量下的读写性能](/eec vs easyexcel(二).html)
