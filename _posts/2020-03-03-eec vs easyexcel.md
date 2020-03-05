@@ -269,8 +269,8 @@ public void testStyleConversion() throws IOException {
 ```
 
 最终生成文件如下
-![](../images/posts/testStyleConversion.png)
-![](../images/posts/properties.png)
+![](/images/posts/testStyleConversion.png)
+![](/images/posts/properties.png)
 
 
 ### 3. 后记
