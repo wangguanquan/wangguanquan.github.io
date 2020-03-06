@@ -11,7 +11,7 @@ keywords: excel, eec, easyexcel
 硬件:
 - CPU: 2.7 GHz Intel Core i5 (双核)
 - 内存: 8 GB 1867 MHz DDR3
-- 硬盘: SATA 128G(当前可用35G)
+- 硬盘: SATA 128G(35G可用)
 - 系统: macOS 10.12.6
 
 测试版本:
@@ -23,31 +23,36 @@ keywords: excel, eec, easyexcel
 ### 读写文件测试
 
 至BIFF5以后Office就使用SharedString方式保存字符串，使用共享字符串可以达到压缩文件的目的，但是POI使用的是`innerStr`方式写字符串，easyexcel底层是POI所以自然的继承了这一方式，
-eec默认也是使用innerStr方式，也可以使用注解`@Column(share = true)`来使用SharedString方式。
+eec默认也是使用innerStr方式，也可以使用注解`@ExcelColumn(share = true)`来使用SharedString方式。
 
-测试实体为1个int,long,Date,double和25个字符串组成，按1000条记录进行分片。
+测试实体为int,long,Date,double各一个加上25个字符串组成，按1000条记录进行一次分片。
 下面对比两个工具分别对1w，5w, 10w, 50w, 100w数据的读写，所有测试代码已上传到github上地址[eec-poi-compares](https://github.com/wangguanquan/eec-poi-compares)
 
 测试之前我们先进行1w~100w数据空测，模拟取数据的时间以此为基准来测试Excel读写时间。
 
-这是重的测试结果截图，为了抓取jvm参数我在test100w方法里休眠了20秒钟，从测试数据上看100w空转时间为23.54秒，减去休眠的20秒实际应该是3秒。
+这是测试结果截图，为了抓取jvm参数我在test100w方法里休眠了20秒钟，从测试数据上看100w空转时间为23.54秒，减去休眠的20秒实际应该是3秒。
 
 图表展示:
-![写文件对比](/images/posts/chat1.png)
-![读文件对比](/images/posts/chat2.png)
+1〜100w行数据写文件（时间均为秒）
+![写文件对比](../images/posts/chat1.png)
 
-通过上图可以简单总结: 写文件eec平均比easyexcel快2倍以上，读文件eec平均比easyexcel快3倍以上。*注意: 这个结论只适用于配置较低的机器，并不适用于多核心SSD高配机*
+读取1~100w行数据（时间均为秒）
+![读文件对比](../images/posts/chat2.png)
+
+通过上图可以简单总结: 写文件eec平均比easyexcel快1倍以上，读文件eec平均比easyexcel快约2倍左右。*注意: 这个结论只适用于配置较低的机器，并不适用于多核心SSD高配机*
 easyexcel和eec均频繁进行磁盘I/O操作，所以一块好的硬盘可以极大的提升速度。
 
 #### jvm对比
 
 我们限制了jvm堆大小为64M，以下是运行过程中堆的波动情况，鼠标标识的位置(21:44:11)左边是easyexcel使用堆内存情况，右边是eec使用堆内存情况。
-好消息是两个工具均能在64MB的限制下完成测试，easyexcel最高占用57.7MB，eec最高49.3MB略低，这个波动在正常范围内
-![堆使用情况](/images/posts/heap.png)
+好消息是两个工具均能在64MB的限制下完成测试，easyexcel最高占用57.7MB，eec最高49.3MB略低，但我觉得这个波动在正常范围内并不能说eec使用内存比easyexcel低
+![堆使用情况](../images/posts/heap.png)
+
+*下面详细日志有准确的时间序列*
 
 #### 文件大小对比
 
-单位为MB，有日期的情况下eec比easyexcel略小，因为eec使用int值或者double值保存数据，使用样式格式化值，这与Office Excel的处理方式相同，而easyexcel默认以字符串保存所以长度会大于int或double，如果全部是字符串那么会得到相反的结论
+单位为MB，有Date类型的情况下eec比easyexcel略小，因为eec使用int值或者double值保存时间数据，使用样式格式化显示，这与Office Excel的处理方式相同，而easyexcel默认以字符串保存所以长度会大于int或double，如果全部是字符串那么会得到相反的结论
 
 描述 | 1w | 5w | 10w | 50w | 100w
 ----|---:|---:|----:|----:|-----:|
@@ -160,7 +165,7 @@ Easy excel | 1.7 | 8.7 | 17.4 | 87.7 | 175.7
 2020-03-05 21:47:39.768 [LargeExcelTest:250] - EEC read finished. used: 3389
 ```
 
-我们看到easyexcel从21:34:44.412开始到21:36:17.902写完100w，再到21:37:09.910完成数据压缩，写数据用时93.49秒，压缩用时52.008秒
+我们看到easyexcel从21:34:44.412开始到21:36:17.902写完100w数据，再到21:37:09.910完成数据压缩，写数据用时93.49秒，压缩用时52.008秒
 而eec写100w用时27.43秒(实际比这个大一点，因为eec使用pull方式拉数据，我们无法知道最后一批数据完成的实际时间)，压缩用了39.373秒(实际比这个小一点)
 
 我们进一步列出所有写操作的写数据时间和压缩时间
@@ -173,3 +178,28 @@ Easy excel写数据 | 0.935 | 4.172 | 7.944 | 37.38 | 93.49
 Easy excel压缩数据 | 0.7 | 2.586 | 4.409 | 23.174 | 52.008
 
 上图可以发现eec写数据的速度远大于easy excel，平均超过3倍多。
+
+
+### Office默认的字符串Shared模式读性能对比
+
+由于easyexcel并不支持字符串Shared写入，所以测试文件由eec产生，然后两种工具读取相同文件，内存同样限制在64MB内。
+
+直接上对比图：
+# TODO
+
+## 性能较好的机器上测试
+
+硬件:
+- CPU: 3 GHz Intel Core i5 (6核)
+- 内存: 16 GB 3000 MHz DDR4
+- 硬盘: Samsung SSD 970 PRO 512GB（267G可用）
+- 系统: macOS 10.14.4
+
+测试代码与上面的完全一样，所以这里不写细节直接上最终的对比图。
+
+### 限制内存64MB测试
+
+
+### 不限制内存测试
+
+

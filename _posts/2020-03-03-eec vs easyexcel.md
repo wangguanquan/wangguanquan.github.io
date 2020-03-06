@@ -122,6 +122,8 @@ private List<LargeData> data() {
 
 以上是两个工具类处理大文件的不同方式，easyexcel采用push方式主动向ExcelWriter推送数据，eec采用pull方式在写完一块数据后再拉取下一块，至到返回空数组或null为止。
 
+对于大文件关系性数据库eec还提供另一种方案，用户可以使用`StatementSheet`和`ResultSetSheet`两种WorksSheet将全部数据直接写入Excel文件，省掉了将表数据转为对象的过程。
+
 #### 2.1.3 写多个worksheet页
 
 很多时候我们会分类将不同类别不同功能的数据写到不同的worksheet里，比如我们做一个表设计不会将每张表放不同的excel文件，更多的做法是将不同表写在不同的worksheet里。
@@ -201,14 +203,77 @@ try (ExcelReader reader = ExcelReader.read(defaultTestPath.resolve("Large easyex
 }
 ```
 
+### 2.3 读取多个worksheet页
+
+两个工具都提供方便的多worksheet读取可以看示例
+
+easyexcel示例
+
+```
+public void test9() {
+    ExcelReader excelReader = EasyExcel.read(defaultTestPath.resolve("test7.xlsx").toFile(), simpleListener).headRowNumber(0).build();
+    List<ReadSheet> sheets = excelReader.excelExecutor().sheetList();
+    sheets.forEach(sheet -> {
+        System.out.println("----------" + sheet.getSheetName() + "-----------");
+        excelReader.read(sheet);
+    });
+}
+
+// 输出内容
+----------帐单表-----------
+{0=1.0, 1=100.8}
+{0=2.0, 1=34.2}
+{0=3.0, 1=983.0}
+----------客户表-----------
+{0=1001.0, 1=张三}
+{0=1002.0, 1=李四}
+----------用户客户关系表-----------
+{0=1.0, 1=1001.0}
+{0=2.0, 1=1002.0}
+{0=3.0, 1=1002.0}
+```
+
+eec示例
+
+```
+public void test10() {
+    try (ExcelReader reader = ExcelReader.read(defaultTestPath.resolve("test8.xlsx"))) {
+        reader.sheets().flatMap(sheet -> {
+            System.out.println("----------" + sheet.getName() + "-----------");
+            return sheet.rows();
+        }).forEach(System.out::println);
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
+
+// 输出内容
+----------帐单表-----------
+id | total
+1 | 100.8
+2 | 34.2
+3 | 983
+----------客户表-----------
+id | name
+1001 | 张三
+1002 | 李四
+----------用户客户关系表-----------
+ch_id | cu_id
+1 | 1001
+2 | 1002
+3 | 1002
+```
+
+操作都还算方便，相较easyexcel来说eec要更简单一点，如果不输出表头一行命令就可以完成输出`reader.sheets().flatMap(Sheet::rows).forEach(System.out::println);`
+
+### 2.4 eec的一些更多使用方式
+
 由于eec采用迭代模式所以可以使用JDK8的Stream全部功能。数据量小的时候可以将数据全部放入内存像下面这样
 
 ```
 try (ExcelReader reader = ExcelReader.read(defaultTestPath.resolve("Large easyexcel.xlsx"))) {
-    List<LargeData> list = reader.sheets()
-        .flatMap(Sheet::dataRows)
-        .map(row -> row.to(LargeData.class))
-        .collect(Collectors.toList());
+    List<LargeData> list = reader.sheets().flatMap(Sheet::dataRows)
+        .map(row -> row.to(LargeData.class)).collect(Collectors.toList());
     // 业务处理
 
 } catch (IOException e) {
@@ -216,7 +281,7 @@ try (ExcelReader reader = ExcelReader.read(defaultTestPath.resolve("Large easyex
 }
 ```
 
-easyexcel取出的内容必须使用`ReaderListener<T>`来接收，也就是说必须转为对象（可以是实体或者Map），eec提供与JDBC类似接口，你可以使用`row.getX(columnNumber)`获取指定列的值，对于读非规则表格或非表格这是非常有效的。
+easyexcel取出的内容必须使用`ReaderListener<T>`来接收，也就是说必须转为对象（可以是实体或者Map），eec提供与JDBC类似接口，你可以使用`row.getX(columnNumber)`获取指定列的值，对于读非规则表格或非表格时这是非常有效的。
 
 示例：
 
@@ -277,4 +342,4 @@ public void testStyleConversion() throws IOException {
 
 easyexcel支持更低的JDK版本，eec使用了更灵活的设计模式，同时所有的底层代码均是独立实现，意味着它的依懒非常小。但是eec现阶段鲜有人使用有很多BUG也就无从发现，稳定性还有待考验。
 
-[下一篇将对比两者在各数据量下的读写性能](/eec vs easyexcel(二).html)
+[下一篇将对比两者在各数据量下的读写性能](/2020-03-05/excel/eec vs easyexcel 2.html)
