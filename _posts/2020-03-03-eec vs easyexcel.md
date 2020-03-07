@@ -45,7 +45,7 @@ easyexcel提供了比原生的POI简结很多的接口，读写Excel文件均可
 
 #### 2.1 少量数据
 
-对于少量数据可以直接将内容放到数组/集合中一次写入，好在两个工具都能做到一行代码完成数据写入。下面展示两者的实现方式，代码中出现的`defaultTestPath`是文件路径事先已创建好。
+对于少量数据可以直接将内容放到数组/集合中一次写入，两个工具都能做到一行代码完成数据写入。下面展示两者的实现方式，代码中出现的`defaultTestPath`是文件路径事先已创建好。
 
 easyexcel可以将文件直接写入`OutputStream`或磁盘
 
@@ -263,9 +263,9 @@ ch_id | cu_id
 
 操作都还算方便，相较easyexcel来说eec要更简单一点，如果不输出worksheet名那么一行命令就可以完成输出`reader.sheets().flatMap(Sheet::rows).forEach(System.out::println);`
 
-### 4. eec的一些更多使用方式
+### 4. eec更多使用方式
 
-由于eec采用迭代模式所以可以使用JDK8的Stream全部功能，下面展示一些常用功能。
+由于eec采用迭代模式因此可以使用JDK8的Stream全部功能，下面展示一些常用功能。
 
 #### 4.1 将内容转为集合
 
