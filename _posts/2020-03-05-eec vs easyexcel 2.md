@@ -244,9 +244,9 @@ Easy excel | 1.194 | 5.593 | 10.494 | 55.605 | 99.653
 
 内存和CPU使用情况，同样鼠标位置左边为easyexcel右边为eec
 
-![](/images/posts/hi_gt64jvm.png)
+![](/images/posts/hi_gt64_jvm.png)
 
-![](/images/posts/hi_gt64cpu.png)
+![](/images/posts/hi_gt64_cpu.png)
 
 可以看出无论在高配机和低配机上，eec的读写速度均超过easyexcel，且在一个稳定范围内。
 
@@ -285,6 +285,8 @@ easyexcel并没有完成16MB的写文件测试，确切的说未完成10~100W数
 
 ![16MB内存](/images/posts/lo_16eec_jvm.png)
 
+![16MBCPU使用](/images/posts/lo_16eec_cpu.png)
+
 描述 | 1w | 5w | 10w | 50w | 100w
 ----|---:|---:|----:|----:|-----:|
 EEC写 | 0.576 | 2.196 | 4.824 | 22.360 | 46.903
@@ -293,7 +295,7 @@ EEC读 | 0.672 | 2.867 | 6.286 | 25.261 | 51.137
 
 #### 3.2.2 easyexcel测试
 
-上面已经说了easyexcel在写到7万数据左右时就抛错误`Exception in thread "RMI TCP Connection(idle)" java.lang.OutOfMemoryError: GC overhead limit exceeded`，同时CPU掉到0终止运行
+上面已经说了easyexcel在写到7万数据左右时就抛错误"Exception in thread "RMI TCP Connection(idle)" java.lang.OutOfMemoryError: GC overhead limit exceeded"，同时CPU掉到0终止运行
 
 下面是测试截图
 
@@ -305,13 +307,11 @@ CPU截图
 
 CPU波动很大且多次爆满，内存回收活动一直占用较高CPU，有时爆到100%。相比下eec的CPU使用就非常平稳
 
-![EEC 在16MB下 CPU使用](/images/posts/lo_16eec_cpu.png)
-
 内存截图
 
 ![](/images/posts/lo_16easy_jvm.png)
 
-可以看到在16MB限制下Easyexcel内存一直保持在13MB的高位，说明一次GC仅回收少量内存，导致程序不停GC使CPU的占用爆满。回看上面EEC的内存截图它一次回收可以释放较多的内存，也就不用一直GC占CPU了。
+可以看到在16MB限制下Easyexcel内存一直保持在12~13MB的高位，说明一次GC仅回收少量内存，导致程序不停GC使CPU的占用爆满。回看上面EEC的内存截图它一次回收可以释放较多的内存，也就不用一直GC占CPU了。
 
 Easyexcel部分测试日志
 
@@ -355,9 +355,9 @@ Exception in thread "RMI TCP Connection(idle)" java.lang.OutOfMemoryError: GC ov
 Exception in thread "RMI TCP Connection(idle)" java.lang.OutOfMemoryError: GC overhead limit exceeded
 ```
 
-我们可以发现刚开始速度还很快100条记录只需要40ms，随着数据不断增加速度也就不断减少，应该是CPU一直被GC占用的原因。
+我们可以发现刚开始速度还很快，每100条记录只需要40ms，随着数据不断增加速度也就不断减少，应该是CPU一直被GC占用的原因。
 
-Easyexcel读文件是正常的与EEC的差别和32MB，64MB相当，这里就不贴图了。
+Easyexcel读文件是正常的，与EEC的性能差别与32MB，64MB比较中的差别相当，这里就不贴图了。
 
 ## 4. 探底EEC最低使用内存
 
@@ -365,11 +365,11 @@ Easyexcel读文件是正常的与EEC的差别和32MB，64MB相当，这里就不
 
 6MB限制下内存波动
 
-![6M_RAM](/images/posts/lo_6m_eec_jvm.pnglo_6m_eec_jvm.png)
+![6M_RAM](/images/posts/lo_6m_eec_jvm.png)
 
 6MB限制下CPU波动
 
-![6M_CPU](/images/posts/lo_6m_eec_jvm.pnglo_6m_eec_cpu.png)
+![6M_CPU](/images/posts/lo_6m_eec_jvm.png)
 
 6MB限制下读写时间
 
@@ -379,7 +379,7 @@ EEC写 | 0.735 | 3.3 | 6.68 | 29.724 | 58.3
 EEC读 | 0.741 | 3.145 | 6.27 | 27.17 | 62.354
 
 
-*注意: 上面所有测试均使用innerStr方式写字符串，SharedString方式在EEC 0.4.2版上有BUG，后续版本更新后再列出性能测试*
+*注意: 上面所有测试均使用innerStr方式写字符串，SharedString方式在EEC 0.4.2版上有BUG，Issue编号[#110](https://github.com/wangguanquan/eec/issues/110)，后续版本更新后再列出性能测试*
 
 ## 5. 后记
 
