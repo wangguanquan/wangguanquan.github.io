@@ -86,42 +86,6 @@ Easy excel | 1.7 | 8.7 | 17.4 | 87.7 | 175.7
 2020-03-05 21:40:35.471 [LargeDataListener:25] - Large row count:1000000
 2020-03-05 21:40:35.477 [LargeExcelTest:230] - Easy-excel read finished. used: 205566
 
-2020-03-05 21:40:35.478 [LargeExcelTest:200] - Easy-excel start to write...
-2020-03-05 21:40:36.152 [LargeExcelTest:206] - 0 fill success.
-2020-03-05 21:40:44.096 [LargeExcelTest:206] - 99 fill success.
-2020-03-05 21:40:48.505 [LargeExcelTest:209] - Easy-excel write finished. used: 13027
-2020-03-05 21:40:48.506 [LargeExcelTest:226] - Easy-excel start to read...
-2020-03-05 21:41:06.279 [LargeDataListener:19] - Already read:100000
-2020-03-05 21:41:06.279 [LargeDataListener:25] - Large row count:100000
-2020-03-05 21:41:06.279 [LargeExcelTest:230] - Easy-excel read finished. used: 17773
-
-2020-03-05 21:41:06.280 [LargeExcelTest:200] - Easy-excel start to write...
-2020-03-05 21:41:06.443 [LargeExcelTest:206] - 0 fill success.
-2020-03-05 21:41:07.378 [LargeExcelTest:206] - 9 fill success.
-2020-03-05 21:41:08.078 [LargeExcelTest:209] - Easy-excel write finished. used: 1798
-2020-03-05 21:41:08.078 [LargeExcelTest:226] - Easy-excel start to read...
-2020-03-05 21:41:09.856 [LargeDataListener:25] - Large row count:10000
-2020-03-05 21:41:09.857 [LargeExcelTest:230] - Easy-excel read finished. used: 1779
-
-2020-03-05 21:41:09.857 [LargeExcelTest:200] - Easy-excel start to write...
-2020-03-05 21:41:10.050 [LargeExcelTest:206] - 0 fill success.
-2020-03-05 21:41:47.237 [LargeExcelTest:206] - 499 fill success.
-2020-03-05 21:42:10.411 [LargeExcelTest:209] - Easy-excel write finished. used: 60554
-2020-03-05 21:42:10.411 [LargeExcelTest:226] - Easy-excel start to read...
-2020-03-05 21:42:29.944 [LargeDataListener:19] - Already read:100000
-2020-03-05 21:43:52.905 [LargeDataListener:19] - Already read:500000
-2020-03-05 21:43:52.905 [LargeDataListener:25] - Large row count:500000
-2020-03-05 21:43:52.905 [LargeExcelTest:230] - Easy-excel read finished. used: 102494
-
-2020-03-05 21:43:52.906 [LargeExcelTest:200] - Easy-excel start to write...
-2020-03-05 21:43:53.027 [LargeExcelTest:206] - 0 fill success.
-2020-03-05 21:43:57.199 [LargeExcelTest:206] - 49 fill success.
-2020-03-05 21:43:59.785 [LargeExcelTest:209] - Easy-excel write finished. used: 6879
-2020-03-05 21:43:59.785 [LargeExcelTest:226] - Easy-excel start to read...
-2020-03-05 21:44:11.407 [LargeDataListener:25] - Large row count:50000
-2020-03-05 21:44:11.407 [LargeExcelTest:230] - Easy-excel read finished. used: 11622
-
-
 2020-03-05 21:44:11.408 [LargeExcelTest:213] - EEC start to write...
 2020-03-05 21:44:11.765 [LargeExcelTest$1:218] - 0 fill success.
 2020-03-05 21:44:25.623 [LargeExcelTest$1:218] - 500 fill success.
@@ -133,45 +97,6 @@ Easy excel | 1.7 | 8.7 | 17.4 | 87.7 | 175.7
 2020-03-05 21:46:19.416 [LargeExcelTest:242] - Reading 1000000 rows
 2020-03-05 21:46:19.417 [LargeExcelTest:246] - Data rows: 1000000
 2020-03-05 21:46:19.556 [LargeExcelTest:250] - EEC read finished. used: 61343
-
-2020-03-05 21:46:19.556 [LargeExcelTest:213] - EEC start to write...
-2020-03-05 21:46:19.577 [LargeExcelTest$1:218] - 0 fill success.
-2020-03-05 21:46:21.700 [LargeExcelTest$1:218] - 100 fill success.
-2020-03-05 21:46:25.099 [LargeExcelTest:222] - EEC write finished. used: 5543
-2020-03-05 21:46:25.100 [LargeExcelTest:234] - EEC start to read...
-2020-03-05 21:46:26.173 [LargeExcelTest:238] - Worksheet [Sheet1] dimension: A1:AC100001
-2020-03-05 21:46:32.164 [LargeExcelTest:242] - Reading 100000 rows
-2020-03-05 21:46:32.164 [LargeExcelTest:246] - Data rows: 100000
-2020-03-05 21:46:32.180 [LargeExcelTest:250] - EEC read finished. used: 7080
-
-2020-03-05 21:46:32.181 [LargeExcelTest:213] - EEC start to write...
-2020-03-05 21:46:32.208 [LargeExcelTest$1:218] - 0 fill success.
-2020-03-05 21:46:32.433 [LargeExcelTest$1:218] - 10 fill success.
-2020-03-05 21:46:32.797 [LargeExcelTest:222] - EEC write finished. used: 616
-2020-03-05 21:46:32.798 [LargeExcelTest:234] - EEC start to read...
-2020-03-05 21:46:32.955 [LargeExcelTest:238] - Worksheet [Sheet1] dimension: A1:AC10001
-2020-03-05 21:46:33.618 [LargeExcelTest:246] - Data rows: 10000
-2020-03-05 21:46:33.622 [LargeExcelTest:250] - EEC read finished. used: 824
-
-2020-03-05 21:46:33.622 [LargeExcelTest:213] - EEC start to write...
-2020-03-05 21:46:33.633 [LargeExcelTest$1:218] - 0 fill success.
-2020-03-05 21:46:44.500 [LargeExcelTest$1:218] - 500 fill success.
-2020-03-05 21:47:01.316 [LargeExcelTest:222] - EEC write finished. used: 27694
-2020-03-05 21:47:01.317 [LargeExcelTest:234] - EEC start to read...
-2020-03-05 21:47:06.141 [LargeExcelTest:238] - Worksheet [Sheet1] dimension: A1:AC500001
-2020-03-05 21:47:11.514 [LargeExcelTest:242] - Reading 100000 rows
-2020-03-05 21:47:33.398 [LargeExcelTest:242] - Reading 500000 rows
-2020-03-05 21:47:33.398 [LargeExcelTest:246] - Data rows: 500000
-2020-03-05 21:47:33.483 [LargeExcelTest:250] - EEC read finished. used: 32165
-
-2020-03-05 21:47:33.483 [LargeExcelTest:213] - EEC start to write...
-2020-03-05 21:47:33.489 [LargeExcelTest$1:218] - 0 fill success.
-2020-03-05 21:47:34.601 [LargeExcelTest$1:218] - 50 fill success.
-2020-03-05 21:47:36.378 [LargeExcelTest:222] - EEC write finished. used: 2895
-2020-03-05 21:47:36.378 [LargeExcelTest:234] - EEC start to read...
-2020-03-05 21:47:36.928 [LargeExcelTest:238] - Worksheet [Sheet1] dimension: A1:AC50001
-2020-03-05 21:47:39.760 [LargeExcelTest:246] - Data rows: 50000
-2020-03-05 21:47:39.768 [LargeExcelTest:250] - EEC read finished. used: 3389
 ```
 
 第一段日志是easyexcel导出100w数据，我们看到从21:34:44.412开始到21:36:17.902写完100w数据，再到21:37:09.910完成数据压缩，写数据用时93.49秒，压缩用时52.008秒。
@@ -303,7 +228,7 @@ EEC读 | 0.672 | 2.867 | 6.286 | 25.261 | 51.137
 
 CPU截图
 
-![Easyexcel 在16MB下 CPU使用](/images/posts/lo_16easy_cpu.png)
+![](/images/posts/lo_16easy_cpu.png)
 
 CPU波动很大且多次爆满，内存回收活动一直占用较高CPU，有时爆到100%。相比下eec的CPU使用就非常平稳
 
@@ -320,9 +245,6 @@ Easyexcel部分测试日志
 2020-03-08 10:56:23.301 INFO [main][LargeExcelTest:206] - 0 fill success.
 2020-03-08 10:56:23.341 INFO [main][LargeExcelTest:206] - 1 fill success.
 2020-03-08 10:56:23.382 INFO [main][LargeExcelTest:206] - 2 fill success.
-2020-03-08 10:56:23.424 INFO [main][LargeExcelTest:206] - 3 fill success.
-2020-03-08 10:56:23.456 INFO [main][LargeExcelTest:206] - 4 fill success.
-2020-03-08 10:56:23.606 INFO [main][LargeExcelTest:206] - 5 fill success.
 
 2020-03-08 10:57:17.462 INFO [main][LargeExcelTest:206] - 690 fill success.
 2020-03-08 10:57:17.832 INFO [main][LargeExcelTest:206] - 691 fill success.
@@ -345,12 +267,6 @@ Easyexcel部分测试日志
 2020-03-08 11:05:49.776 INFO [main][LargeExcelTest:206] - 708 fill success. <-
 2020-03-08 11:07:17.917 INFO [main][LargeExcelTest:206] - 709 fill success. <-
 2020-03-08 11:08:17.004 INFO [main][LargeExcelTest:206] - 710 fill success. <-
-2020-03-08 11:08:49.561 INFO [main][LargeExcelTest:206] - 711 fill success. <-
-2020-03-08 11:09:25.869 INFO [main][LargeExcelTest:206] - 712 fill success. <-
-2020-03-08 11:10:01.291 INFO [main][LargeExcelTest:206] - 713 fill success. <-
-2020-03-08 11:10:11.224 INFO [main][LargeExcelTest:206] - 714 fill success. <-
-2020-03-08 11:11:48.075 INFO [main][LargeExcelTest:206] - 715 fill success. <-
-2020-03-08 11:12:56.421 INFO [main][LargeExcelTest:206] - 716 fill success. <-
 Exception in thread "RMI TCP Connection(idle)" java.lang.OutOfMemoryError: GC overhead limit exceeded
 Exception in thread "RMI TCP Connection(idle)" java.lang.OutOfMemoryError: GC overhead limit exceeded
 ```
