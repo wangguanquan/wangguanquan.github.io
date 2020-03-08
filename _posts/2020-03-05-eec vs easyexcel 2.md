@@ -369,7 +369,7 @@ Easyexcel读文件是正常的，与EEC的性能差别与32MB，64MB比较中的
 
 6MB限制下CPU波动
 
-![6M_CPU](/images/posts/lo_6m_eec_jvm.png)
+![6M_CPU](/images/posts/lo_6m_eec_cpu.png)
 
 6MB限制下读写时间
 
