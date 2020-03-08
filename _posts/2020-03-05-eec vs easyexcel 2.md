@@ -25,7 +25,7 @@ keywords: excel, eec, easyexcel
 从BIFF5以后Office就使用SharedString方式保存字符串，使用共享字符串可以达到压缩文件的目的，但是POI使用的是`innerStr`方式写字符串，easyexcel底层是POI所以自然的继承了这一方式，
 eec默认也是使用innerStr方式，可以使用注解`@ExcelColumn(share = true)`来使用SharedString方式。
 
-测试实体为int,long,Date,double各一个加上25个字符串组成，按1000条记录进行一次分片。
+测试实体由29个字段组成，分别由int,long,Date,double各一个，加上25个字符串，按1000条记录进行一次分片。
 下面对比两个工具分别对1w，5w, 10w, 50w, 100w数据的读写，所有测试代码已上传到github，地址[eec-poi-compares](https://github.com/wangguanquan/eec-poi-compares)
 
 ### 1.1 读写性能对比
