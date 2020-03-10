@@ -6,7 +6,9 @@ description: Excel操作工具EEC和alibaba开源easyexcel工具的性能对比
 keywords: excel, eec, easyexcel
 ---
 
-本文主要对比java操作Excel的两款工具，easyexcel和eec读写时的性能和内存，本次测试在高配和低配两台机器上进行
+[上一篇](/excel/2020/03/03/eec-vs-easyexcel.html)我们对比了java操作Excel的两款工具easyexcel和eec的使用便利性和功能对比，本篇主要比较两款工具读写时的性能和内存。
+
+本次测试在高配和低配两台机器上进行
 
 ## 1. 低配机测试
 
