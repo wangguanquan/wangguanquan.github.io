@@ -3,10 +3,10 @@ layout: post
 title: EEC vs easyexcel
 categories: Excel
 description: Excel操作工具EEC和alibaba开源easyexcel工具的性能对比
-keywords: excel, eec, easyexcel
+keywords: excel, EEC, easyexcel
 ---
 
-[上一篇](/excel/2020/03/03/eec-vs-easyexcel.html)我们对比了java操作Excel的两款工具easyexcel和eec的使用便利性和功能对比，本篇主要比较两款工具读写时的性能和内存。
+[上一篇](/excel/2020/03/03/eec-vs-easyexcel.html)我们对比了java操作Excel的两款工具easyexcel和EEC的使用便利性和功能对比，本篇主要比较两款工具读写时的性能和内存。
 
 本次测试在高配和低配两台机器上进行
 
@@ -20,12 +20,12 @@ keywords: excel, eec, easyexcel
 
 测试版本:
 - easyexcel: 2.1.6
-- eec: 0.4.2
+- EEC: 0.4.2
 
 为了避免内存对速度的影响，测试过程中添加jvm参数`-Xmx64m -Xms1m`，限制最大堆内存为64MB，后面会有放开内存限制的测试，这里透露一下内存不是影响速度的关键因素。
 
-从BIFF5以后Office就使用SharedString方式保存字符串，使用共享字符串可以达到压缩文件的目的，但是POI使用的是`innerStr`方式写字符串，easyexcel底层是POI所以自然的继承了这一方式，
-eec默认也是使用innerStr方式，可以使用注解`@ExcelColumn(share = true)`来使用SharedString方式。
+从BIFF5以后Office就使用SharedString方式保存字符串，使用共享字符串可以达到压缩文件的目的，但是POI使用的是`inlineStr`方式写字符串，easyexcel底层是POI所以自然的继承了这一方式，
+EEC默认也是使用inlineStr方式，可以使用注解`@ExcelColumn(share = true)`来使用SharedString方式。
 
 测试实体由29个字段组成，分别由int,long,Date,double各一个，加上25个字符串，按1000条记录进行一次分片。
 下面对比两个工具分别对1w，5w, 10w, 50w, 100w数据的读写，所有测试代码已上传到github，地址[eec-poi-compares](https://github.com/wangguanquan/eec-poi-compares)
@@ -50,12 +50,12 @@ eec默认也是使用innerStr方式，可以使用注解`@ExcelColumn(share = tr
 
 ![读文件对比](/images/posts/chat2.png)
 
-通过上图可以简单总结: 写文件eec平均比easyexcel快1倍以上，读文件eec平均比easyexcel快约2倍左右。*注意: 这个结论只适用于配置较低的机器，并不适用于高主频高性能SSD的高配机*
+通过上图可以简单总结: 写文件EEC平均比easyexcel快1倍以上，读文件EEC平均比easyexcel快约2倍左右。*注意: 这个结论只适用于配置较低的机器，并不适用于高主频高性能SSD的高配机*
 
 ### 1.2 堆内存对比
 
-我们限制了jvm堆大小为64M，以下是运行过程中堆的波动情况，鼠标标识的位置(21:44:11)左边是easyexcel使用堆内存情况，右边是eec使用堆内存情况。
-两个工具均能在64MB的限制下完成测试，easyexcel最高占用57.7MB，eec最高49.3MB略低。
+我们限制了jvm堆大小为64M，以下是运行过程中堆的波动情况，鼠标标识的位置(21:44:11)左边是easyexcel使用堆内存情况，右边是EEC使用堆内存情况。
+两个工具均能在64MB的限制下完成测试，easyexcel最高占用57.7MB，EEC最高49.3MB略低。
 
 ![堆使用情况](/images/posts/heap.png)
 
@@ -63,7 +63,7 @@ eec默认也是使用innerStr方式，可以使用注解`@ExcelColumn(share = tr
 
 ### 1.3 文件大小对比(单位为MB)
 
-文件大小影响不太重要，某些情况下如网络传输会有一些影响。我们测试数据中有Date类型，eec使用int值或者double值保存时间数据，这与Office Excel的处理方式相同。最终两个文件大小非常接近，如果全部是字符串可能会得到另一种结论
+文件大小影响不太重要，某些情况下如网络传输会有一些影响。我们测试数据中有Date类型，EEC使用int值或者double值保存时间数据，这与Office Excel的处理方式相同。最终两个文件大小非常接近，如果全部是字符串可能会得到另一种结论
 
 描述 | 1w | 5w | 10w | 50w | 100w
 ----|---:|---:|----:|----:|-----:|
@@ -102,7 +102,7 @@ Easy excel | 1.7 | 8.7 | 17.4 | 87.7 | 175.7
 ```
 
 第一段日志是easyexcel导出100w数据，我们看到从21:34:44.412开始到21:36:17.902写完100w数据，再到21:37:09.910完成数据压缩，写数据用时93.49秒，压缩用时52.008秒。
-而eec写100w用时27.43秒(实际比这个大一点，因为eec使用pull方式拉数据，我们无法知道最后1000条数据完成的实际时间)，压缩用了39.373秒，写数据的速度远超easyexcel，我们进一步列出所有写数据和压缩时间
+而EEC写100w用时27.43秒(实际比这个大一点，因为EEC使用pull方式拉数据，我们无法知道最后1000条数据完成的实际时间)，压缩用了39.373秒，写数据的速度远超easyexcel，我们进一步列出所有写数据和压缩时间
 
 描述 | 1w | 5w | 10w | 50w | 100w
 ----|---:|---:|----:|----:|-----:|
@@ -111,7 +111,7 @@ EEC压缩数据 | 0.364 | 1.777 | 3.399 | 16.816 | 39.373
 Easy excel写数据 | 0.935 | 4.172 | 7.944 | 37.38 | 93.49
 Easy excel压缩数据 | 0.7 | 2.586 | 4.409 | 23.174 | 52.008
 
-上图可以发现eec写数据的速度远大于easyexcel，压缩速度略快于后者(eec的压缩等级为5，文件可能较easyexcel大)。
+上图可以发现EEC写数据的速度远大于easyexcel，压缩速度略快于后者(EEC的压缩等级为5，文件可能较easyexcel大)。
 
 ## 2. 高配机测试
 
@@ -143,7 +143,7 @@ EEC | 0.452 | 2.201 | 4.359 | 20.917 | 41.929
 Easy excel | 1.100 | 4.953 | 9.875 | 49.848 | 98.390
 倍数 | 243% | 225% | 227% | 238% | 235%
 
-内存和CPU使用情况，同样鼠标位置左边为easyexcel右边为eec
+内存和CPU使用情况，同样鼠标位置左边为easyexcel右边为EEC
 
 ![](/images/posts/hi_64jvm.png)
 
@@ -169,18 +169,18 @@ EEC | 0.451 | 2.211 | 4.377 | 20.766 | 43.117
 Easy excel | 1.194 | 5.593 | 10.494 | 55.605 | 99.653
 倍数 | 265% | 253% | 240% | 268% | 231%
 
-内存和CPU使用情况，同样鼠标位置左边为easyexcel右边为eec
+内存和CPU使用情况，同样鼠标位置左边为easyexcel右边为EEC
 
 ![](/images/posts/hi_gt64_jvm.png)
 
 ![](/images/posts/hi_gt64_cpu.png)
 
-可以看出无论在高配机和低配机上，eec的读写速度均超过easyexcel，且在一个稳定范围内。
+可以看出无论在高配机和低配机上，EEC的读写速度均超过easyexcel，且在一个稳定范围内。
 
 
 ## 3. 其它测试
 
-最后我在低配机上做了32MB和16MB的内存极限测试，其中测试16MB时将分批数量改为100条，32MB未做修改，所有文件均为innerStr方式写字符串。
+最后我在低配机上做了32MB和16MB的内存极限测试，其中测试16MB时将分批数量改为100条，32MB未做修改，所有文件均为inlineStr方式写字符串。
 
 ### 3.1 32MB内存
 
@@ -206,9 +206,9 @@ Easy excel | 1.699 | 9.202 | 16.215 | 78.261 | 163.702
 
 ### 3.2 16MB内存
 
-easyexcel并没有完成16MB的写文件测试，确切的说未完成10~100W数据写Excel文件测试，后面会贴出部分日志。所以这里我先测试eec的读写然后再测试easyexcel在16MB限制下的读文件测试。
+easyexcel并没有完成16MB的写文件测试，确切的说未完成10~100W数据写Excel文件测试，后面会贴出部分日志。所以这里我先测试EEC的读写然后再测试easyexcel在16MB限制下的读文件测试。
 
-#### 3.2.1 eec读写测试
+#### 3.2.1 EEC读写测试
 
 ![16MB内存](/images/posts/lo_16eec_jvm.png)
 
@@ -232,7 +232,7 @@ CPU截图
 
 ![](/images/posts/lo_16easy_cpu.png)
 
-CPU波动很大且多次爆满，内存回收活动一直占用较高CPU，有时爆到100%。相比下eec的CPU使用就非常平稳
+CPU波动很大且多次爆满，内存回收活动一直占用较高CPU，有时爆到100%。相比下EEC的CPU使用就非常平稳
 
 内存截图
 
@@ -297,10 +297,10 @@ EEC写 | 0.735 | 3.3 | 6.68 | 29.724 | 58.3
 EEC读 | 0.741 | 3.145 | 6.27 | 27.17 | 62.354
 
 
-*注意: 上面所有测试均使用innerStr方式写字符串，SharedString方式在EEC 0.4.2版上有BUG，Issue编号[#110](https://github.com/wangguanquan/eec/issues/110)，后续版本更新后再列出性能测试*
+*注意: 上面所有测试均使用inlineStr方式写字符串，SharedString方式在EEC 0.4.2版上有BUG，Issue编号[#110](https://github.com/wangguanquan/eec/issues/110)，后续版本更新后再列出性能测试*
 
 ## 5. 后记
 
 1. 两个工具均为单线程、高IO设计，多核心不会提高速度，高主频和一块好SSD能显著提升速度。
 2. 本次测试均在macOS上完成，缺少windows系统测试
-3. 希望有更多人在实际项目上使用，以帮助eec改进未知BUG
+3. 希望有更多人在实际项目上使用，以帮助EEC改进未知BUG
