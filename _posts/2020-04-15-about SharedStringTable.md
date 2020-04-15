@@ -14,6 +14,17 @@ SharedStringTable是微软在BIFF8版本中引入的概念，其目地是整个W
  the Shared String Table. This table is located in the record SST in the 
  Workbook Globals Substream
  
+SharedStringTable在Excel07及以后版本保存在`sharedStrings.xls`文件中。内容大致像下面这样，
+其中count表示内容被引用次数，uniqueCount表示整个文件中保存的字符串个数。
+
+```$xml
+<sst count="5" uniqueCount="3">
+<si><t>Shared</t></si>
+<si><t>String</t></si>
+<si><t>Table</t></si>
+</sst>
+```
+
 简单的理解可以将SharedStringTable看成一个字符串数组，写Excel的时候先从数组中查找字符串，如果找到则将下标
 当做值写入文件，如果未找到则将字符串追加到数组最后，再将当前下标写入文件。
 
@@ -41,7 +52,7 @@ SharedStringTable是微软在BIFF8版本中引入的概念，其目地是整个W
 
 ```$xslt
 +--------+--------+-------+----------+
-| Shared | String | Table | Workbook |->tail
+| Shared | String | Table | Workbook |->TAIL
 +--------+--------+-------+----------+
 ```
 
@@ -51,7 +62,7 @@ SharedStringTable是微软在BIFF8版本中引入的概念，其目地是整个W
 
 ```$xslt
                        +--------+--------+-------+----------+
-                       | Shared | String | Table | Workbook |->tail
+                       | Shared | String | Table | Workbook |->TAIL
                        +--------+--------+-------+----------+
                            |            \    |         |
      +---------------------+   /---------\---+         |             
@@ -69,4 +80,20 @@ SharedStringTable是微软在BIFF8版本中引入的概念，其目地是整个W
 
 先从第一个问题开始吧，如果字符串太多时如何处理？
 
-首先想到的是分片，按一定长度将大文件分为若干个小片，内存中只保存一片的数量，
+首先想到的是分片，按一定长度将大文件分为若干个小片，内存中只保存一片的数量。
+
+```$xslt
+<sst>
+<si><t>Table</t></si>    ------ +----------+ offset: 0, size: 100
+         .  0                   |  Table   |
+         .  |                   |    .     |
+         .  99                  |    .     | 内存中的一个片对应SST一段值
+<si><t>Workbook</t></si> \_     |    .     |
+<si><t>Hello</t></si>      \_   | Workbook |
+         . 100               \_ +----------+
+         .  |
+         . 199
+<si><t>World</t></si>
+</sst>
+```
+
