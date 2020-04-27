@@ -232,11 +232,11 @@ CPU截图
 
 ![](/images/posts/lo_16easy_cpu.png)
 
-CPU波动很大且多次爆满，内存回收活动一直占用较高CPU，有时爆到100%。相比下EEC的CPU使用就非常平稳
-
 内存截图
 
 ![](/images/posts/lo_16easy_jvm.png)
+
+CPU波动很大且多次爆满，内存回收活动一直占用较高CPU，有时爆到100%。相比下EEC的CPU使用就非常平稳。
 
 可以看到在16MB限制下Easyexcel内存一直保持在12~13MB的高位，说明一次GC仅回收少量内存，导致程序不停GC使CPU的占用爆满。回看上面EEC的内存截图它一次回收可以释放较多的内存，也就不用一直GC占CPU了。
 
