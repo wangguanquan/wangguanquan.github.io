@@ -13,6 +13,7 @@ keywords: excel, EEC, easyexcel, xls, xlsx
 测试实体与上篇基本一致，只是添加了省/市/区3列文本，这3列值大概率重重。具体测试细节可以查看[上一篇](/excel/2020/03/03/eec-vs-easyexcel-2.html)
 
 最终生成的文件内容如下
+
 ![Excel内容](/images/posts/eve3/sst-content.png)
 
 ## 1. 测试机器配置
@@ -253,6 +254,8 @@ EEC(内存) | 3 | 3 | 3 | 5 | 7
 EEC(时间) | 1.450 | 4.673 | 6.231 | 12.391 | 23.623
 Easy excel(内存) | 50 | 220 | 440 | 2400 | 5000
 Easy excel(时间) | 4.196 | 53.834 | 97.854 | 118.996 | 228.368
+
+*xls格式下无论在速度还是内存，EEC都远优于Easyexcel*
 
 ## 附:
 
