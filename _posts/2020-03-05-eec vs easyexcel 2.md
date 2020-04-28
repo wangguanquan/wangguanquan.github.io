@@ -28,6 +28,17 @@ keywords: excel, EEC, easyexcel
 EEC默认也是使用inlineStr方式，可以使用注解`@ExcelColumn(share = true)`来使用SharedString方式。
 
 测试实体由29个字段组成，分别由int,long,Date,double各一个，加上25个字符串，按1000条记录进行一次分片。
+
+测试数据如下格式
+
+nv | lv | dv | av | 省 | 市 | 区/市/县 | str4 | str5 | str6 | str7 | str8 | str9 | str10 | str11 | str12 | str13 | str14 | str15 | str16 | str17 | str18 | str19 | str20 | str21 | str22 | str23 | str24 | str25
+--:|---:|---:|:--:|---|----|---------|------|------|------|------|------|------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------
+-836813678 | 3306314278648050000 | 0.29 | 2020-03-18 | str1-0 | str2-0 | str3-0 | str4-0 | str5-0 | str6-0 | str7-0 | str8-0 | str9-0 | str10-0 | str11-0 | str12-0 | str13-0 | str14-0 | str15-0 | str16-0 | str17-0 | str18-0 | str19-0 | str20-0 | str21-0 | str22-0 | str23-0 | str24-0 | str25-0
+-486185751 | -415549150152144000 | 0.04 | 2020-03-18 | str1-1 | str2-1 | str3-1  | str4-1 | str5-1 | str6-1 | str7-1 | str8-1 | str9-1 | str10-1 | str11-1 | str12-1 | str13-1 | str14-1 | str15-1 | str16-1 | str17-1 | str18-1 | str19-1 | str20-1 | str21-1 | str22-1 | str23-1 | str24-1 | str25-1
+-791958069 | 2872099291500680000 | 0.41 | 2020-03-18 | str1-2 | str2-2 | str3-2 | str4-2 | str5-2 | str6-2 | str7-2 | str8-2 | str9-2 | str10-2 | str11-2 | str12-2 | str13-2 | str14-2 | str15-2 | str16-2 | str17-2 | str18-2 | str19-2 | str20-2 | str21-2 | str22-2 | str23-2 | str24-2 | str25-2
+60008236 | -3603793804803950000 | 0.54 | 2020-03-18 | str1-3 | str2-3 | str3-3 | str4-3 | str5-3 | str6-3 | str7-3 | str8-3 | str9-3 | str10-3 | str11-3 | str12-3 | str13-3 | str14-3 | str15-3 | str16-3 | str17-3 | str18-3 | str19-3 | str20-3 | str21-3 | str22-3 | str23-3 | str24-3 | str25-3
+-219411010 | 3595732915319120000 | 0.98 | 2020-03-18 | str1-4 | str2-4 | str3-4  | str4-4 | str5-4 | str6-4 | str7-4 | str8-4 | str9-4 | str10-4 | str11-4 | str12-4 | str13-4 | str14-4 | str15-4 | str16-4 | str17-4 | str18-4 | str19-4 | str20-4 | str21-4 | str22-4 | str23-4 | str24-4 | str25-4
+
 下面对比两个工具分别对1w，5w, 10w, 50w, 100w数据的读写，所有测试代码已上传到github，地址[eec-poi-compares](https://github.com/wangguanquan/eec-poi-compares)
 
 ### 1.1 读写性能对比
