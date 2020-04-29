@@ -11,7 +11,7 @@ keywords: excel, EEC, easyexcel, xls, xlsx, 海量数据
 、EEC不支持xls格式写文件，所以本文只对比两个工具的读性能。
 
 测试实体与上篇基本一致，只是添加了省/市/区3列文本，这3列值大概率重重，所有字符串均添加注解`@ExcelColumn(share = true)`强制使用SharedString模式。
-具体测试细节可以查看[上一篇](/excel/2020/03/03/eec-vs-easyexcel-2.html)，测试代码[eec-poi-compares](https://github.com/wangguanquan/eec-poi-compares)
+具体测试细节可以查看[上一篇](/excel/2020/03/03/eec-vs-easyexcel-2.html)，测试代码在这里[eec-poi-compares](https://github.com/wangguanquan/eec-poi-compares)
 
 测试文件内容如下
 
@@ -65,33 +65,15 @@ CPU截图
 ### 2.2. 32MB内存
 *限制内存32MB测试*
 
-easyexcel并没有完成32MB内存测试，这是错误LOG
+从这里开始以下所有测试均只测试文件读取
 
-```$xslt
-2020-04-26 16:41:02.569 INFO [main][org.ttzero.compares.LargeExcelTest:349] - Easy-excel start to read...
-2020-04-26 16:41:02.607 INFO [main][org.ehcache.core.EhcacheManager:307] - Cache '0d5779c9-a1aa-412b-ada3-12469678e4c4' created in EhcacheManager.
-2020-04-26 16:41:02.609 INFO [main][org.ehcache.core.EhcacheManager:307] - Cache '0d5779c9-a1aa-412b-ada3-12469678e4c4' created in EhcacheManager.
-#
-# A fatal error has been detected by the Java Runtime Environment:
-#
-#  SIGSEGV (0xb) at pc=0x0000000103549937, pid=3772, tid=0x0000000000001d03
-#
-# JRE version: Java(TM) SE Runtime Environment (8.0_191-b12) (build 1.8.0_191-b12)
-# Java VM: Java HotSpot(TM) 64-Bit Server VM (25.191-b12 mixed mode bsd-amd64 compressed oops)
-# Problematic frame:
-# V  [libjvm.dylib+0x4c9937]
-#
-# Failed to write core dump. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
-#
-# An error report file with more information is saved as:
-# /Users/guanquan.wang/workspace/eec-poi-compares/hs_err_pid3772.log
-#
-# If you would like to submit a bug report, please visit:
-#   http://bugreport.java.com/bugreport/crash.jsp
-#
+描述 | 1w | 5w | 10w | 50w | 100w
+----|---:|---:|----:|----:|-----:|
+EEC | 0.399 | 1.728 | 3.227 | 15.667 | 32.14
+Easy excel | 4.716 | 34.662 | 63.444 | 296.302 | 656.734
+倍数 | 1182% | 2006% | 1966% | 1891% | 2043%
 
-Process finished with exit code 134 (interrupted by signal 6: SIGABRT)
-```
+![32MB图表](/images/posts/eve3/hi_32chart.png)
 
 CPU截图
 ![32MBCPU测试截图](/images/posts/eve3/hi_32cpu.png)
@@ -101,7 +83,7 @@ CPU截图
 
 *鼠标左边为EEC，右边为Easyexcel*
 
-easyexcel内存一直处于满载状态，且GC占用CPU很高。
+在32MB限制下easyexcel内存一直处于满载状态，且GC占用CPU很高，速度仅为EEC的1/10〜1/20。
 
 ### 2.3. 探底EEC最低使用内存
 
@@ -182,11 +164,6 @@ private void eecWritePaging(final String name, final int loop) throws IOExceptio
  eec shared 50w.xlsx |   92M|
  eec shared 100w.xls |  978M|
  eec shared 100w.xlsx|  185M|
-
-我们可以看到xls格式最终文件比xlsx格式文件大得多，所以强烈建议在项目中将xlsx格式设置为默认的数据导出格式，
-文件大小对比xlsx格式优于xls和csv格式，对于网终传输更友好。（csv格式在相同数据量下文件大小分别为(1~100w)3.1M, 16M, 33M, 175M, 352M）
-
-![File size](/images/posts/eve3/file-size-c.png)
 
 进入主题吧
 
@@ -277,8 +254,9 @@ Easy excel | 50M | 220M | 440M | 2400M | 5000M
 ## 总结
 
 通过前面的测试，我们对两款工具的便利性和性能有了一定的了解，与POI/easyexcel相比，EEC有着更新的设计理念，天然支持Worksheet分页、
-支持数据分片、支持高亮、隔行变色、支持流式读取、懒读取等一些提高生产力的特性，且拥有更简洁、优雅的API也降低了接入成本。
-无论在速度优化还是内存控制方面EEC都远优于POI，毕竟POI是十几年前的产物，就算easyexcel在此基础上有极大改善但是与EEC相比还有一定差距。
+支持数据分片、支持高亮、支持流式读取、延迟读取等一些提高生产力的特性，且拥有更简洁、优雅的API也降低了接入成本。
+无论在速度优化还是内存控制方面EEC都远优于POI，毕竟POI是十几年前的产物，就算easyexcel在此基础上有极大改善但是与EEC相比还有一定差距，
+可以说EEC是目前所能找到的同类产品使用内存最小的工具，没有之一。
 
 虽然EEC不支持xls的写入但瑕不掩瑜，尤其是微软已经停更xls格式多年，不支持xls格式写入也不会有太多功能损失。
 
