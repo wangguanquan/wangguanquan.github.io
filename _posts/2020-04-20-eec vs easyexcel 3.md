@@ -6,16 +6,16 @@ description: Excel操作工具EEC和alibaba开源easyexcel工具的性能对比
 keywords: excel, EEC, easyexcel, xls, xlsx, 海量数据
 ---
 
-[上一篇](/excel/2020/03/03/eec-vs-easyexcel-2.html)我们对比了easyexcel和EEC两款工具在innerStr模式下读写Excel文件的性能和内存，
-本文是对比系列的最后一篇，主要对比两款工具在SharedString模式下的读写性能以及Excel 97~2003格式读取性能。由于easyexcel不支持SharedString模式
-、EEC不支持xls格式写文件，所以本文只对比两个工具的读性能。
+从BIFF5以后Office就使用SharedString方式保存字符串，使用共享字符串可以达到压缩文件的目的，但是POI使用的是`inlineStr`方式写字符串，easyexcel底层是POI所以自然的继承了这一方式，EEC默认也是使用inlineStr方式，可以使用注解`@ExcelColumn(share = true)`来使用SharedString方式。
 
-测试实体与上篇基本一致，只是添加了省/市/区3列文本，这3列值大概率重复(毕竟我国的省/市/区数据是确定的，有限的)，所有字符串均添加注解`@ExcelColumn(share = true)`强制使用SharedString模式。
-具体测试细节可以查看[上一篇](/excel/2020/03/03/eec-vs-easyexcel-2.html)，测试代码在这里[eec-poi-compares](https://github.com/wangguanquan/eec-poi-compares)
+[上一篇](/excel/2020/03/03/eec-vs-easyexcel-2.html)我们对比了easyexcel和EEC两款工具在innerStr模式下读写Excel文件的性能和内存，本文是对比系列的最后一篇，主要对比两款工具在SharedString模式下的读写性能以及Excel 97~2003格式读取性能。由于easyexcel不支持SharedString模式、EEC不支持xls格式写文件，所以本文只对比两个工具的读性能。
+
+
+测试实体与上篇基本一致，只是添加了省/市/区3列文本，这3列值大概率重复(毕竟我国的省/市/区数据是确定的，有限的)，所有字符串均添加注解`@ExcelColumn(share = true)`强制使用SharedString模式。具体测试细节可以查看[上一篇](/excel/2020/03/03/eec-vs-easyexcel-2.html)，测试代码在这里[eec-poi-compares](https://github.com/wangguanquan/eec-poi-compares)
 
 测试文件内容如下
 
-nv | lv | dv | av | 省 | 市 | 区/市/县 | str4 | str5 | str6 | str7 | str8 | str9 | str10 | str11 | str12 | str13 | str14 | str15 | str16 | str17 | str18 | str19 | str20 | str21 | str22 | str23 | str24 | str25
+int | long | double | date | 省 | 市 | 区/市/县 | str4 | str5 | str6 | str7 | str8 | str9 | str10 | str11 | str12 | str13 | str14 | str15 | str16 | str17 | str18 | str19 | str20 | str21 | str22 | str23 | str24 | str25
 --:|---:|---:|:--:|---|----|---------|------|------|------|------|------|------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------
 -836813678 | 3306314278648050000 | 0.29 | 2020-03-18 | 江苏省 | 南京市 | 栖霞区 | str4-0 | str5-0 | str6-0 | str7-0 | str8-0 | str9-0 | str10-0 | str11-0 | str12-0 | str13-0 | str14-0 | str15-0 | str16-0 | str17-0 | str18-0 | str19-0 | str20-0 | str21-0 | str22-0 | str23-0 | str24-0 | str25-0
 -486185751 | -415549150152144000 | 0.04 | 2020-03-18 | 广东省 | 深圳市 | 龙岗区 | str4-1 | str5-1 | str6-1 | str7-1 | str8-1 | str9-1 | str10-1 | str11-1 | str12-1 | str13-1 | str14-1 | str15-1 | str16-1 | str17-1 | str18-1 | str19-1 | str20-1 | str21-1 | str22-1 | str23-1 | str24-1 | str25-1
@@ -52,15 +52,13 @@ Easy excel(Read) | 1.109 | 5.468 | 11.35 | 55.55 | 112.187
 
 ![64MB图表](/images/posts/eve3/hi_64chart.png)
 
-CPU截图
+CPU截图*鼠标左边为EEC，右边为Easyexcel*
 ![64MBCPU测试截图](/images/posts/eve3/hi_64cpu.png)
 
-内存截图
+内存截图*鼠标左边为EEC，右边为Easyexcel*
 ![64MB内存测试截图](/images/posts/eve3/hi_64jvm.png)
 
-*鼠标左边为EEC，右边为Easyexcel*
-
-可见EEC的读取速度超过easyexcel2倍
+与innerStr模式相比两者速度差距有所拉大，EEC的读取速度超过easyexcel2倍
 
 ### 2.2. 32MB内存
 *限制内存32MB测试*
@@ -75,13 +73,11 @@ Easy excel | 4.716 | 34.662 | 63.444 | 296.302 | 656.734
 
 ![32MB图表](/images/posts/eve3/hi_32chart.png)
 
-CPU截图
+CPU截图*鼠标左边为EEC，右边为Easyexcel*
 ![32MBCPU测试截图](/images/posts/eve3/hi_32cpu.png)
 
-内存截图
+内存截图*鼠标左边为EEC，右边为Easyexcel*
 ![32MB内存测试截图](/images/posts/eve3/hi_32jvm.png)
-
-*鼠标左边为EEC，右边为Easyexcel*
 
 在32MB限制下easyexcel内存一直处于满载状态，且GC占用CPU很高，速度仅为EEC的1/10〜1/20。
 
@@ -93,15 +89,15 @@ CPU截图
 ----|---:|---:|----:|----:|-----:|
 EEC读 | 0.391 | 1.887 | 3.695 | 16.965 | 34.719
 
-内存波动
-
-![10M_RAM](/images/posts/eve3/hi_10jvm.png)
-
 CPU波动
 
 ![10M_CPU](/images/posts/eve3/hi_10cpu.png)
 
-Easyexcel在10MB下抛OOM错误，
+内存波动
+
+![10M_RAM](/images/posts/eve3/hi_10jvm.png)
+
+Easyexcel在10MB下抛OOM错误
 
 ```
 com.alibaba.excel.exception.ExcelAnalysisException: java.lang.OutOfMemoryError: GC overhead limit exceeded
@@ -120,7 +116,7 @@ Caused by: java.lang.OutOfMemoryError: GC overhead limit exceeded
 
 ## 3. xls格式读写
 
-测试内容与上面完全一样，测试文件首先由EEC生成xlsx格式，再转为xls格式，代码如下
+测试内容与上面完全一样，测试文件首先由EEC生成xlsx格式，然后再转为xls格式，代码如下
 
 ```
 private void eecWritePaging(final String name, final int loop) throws IOException {
@@ -165,7 +161,7 @@ private void eecWritePaging(final String name, final int loop) throws IOExceptio
  eec shared 100w.xls |  978M|
  eec shared 100w.xlsx|  185M|
 
-进入主题吧
+进入主题开始测试吧
 
 ### 3.1 64MB内存
 
@@ -207,8 +203,7 @@ Caused by: java.lang.OutOfMemoryError: GC overhead limit exceeded
 	at org.apache.poi.hssf.record.SSTRecord.<init>(SSTRecord.java:252)
 ```
 
-从错误信息上发现在解析SSTRecord时抛OOM错误。SST即Shared String Table的简称，大概率是POI将SST中的字符串全部拉到内存导致OOM。
-[SharedStringTable在EEC中的处理](/excel/2020/04/15/about-SharedStringTable.html)一文中有详细介绍SST在POI中的实现，感兴趣的朋友可以移步去了解一下。
+从错误信息上发现在解析SSTRecord时抛OOM错误。SST即Shared String Table的简称，大概率是POI将SST中的字符串全部拉到内存导致OOM。[SharedStringTable在EEC中的处理](/excel/2020/04/15/about-SharedStringTable.html)一文中有详细介绍SST在POI中的实现，感兴趣的朋友可以移步去了解一下。
 
 ### 3.2 10MB内存
 
@@ -233,11 +228,11 @@ Easy excel | 0.628 | 2.810 | 4.55 | 32.116 | 118.69
 
 ![图表](/images/posts/eve3/unlimit_test.png)
 
-附两者测试CPU和内存截图，上面为easyexcel下面为EEC，不限制内存的情况下，前者最大分配7G堆内存，最大使用堆4.7G。EEC最大分配700MB，最大使用350MB。
+对于xls格式的读取速度EEC远超Easyexcel，附两者测试CPU和内存截图，上面为easyexcel下面为EEC，不限制内存的情况下，前者最大分配7G堆内存，最大使用堆4.7G。EEC最大分配700MB，最大使用350MB。
 
 ![CPU & RAM](/images/posts/eve3/ram_c.png)
 
-*我还发现一个有趣的现象，xls格式读取时间远小于xlsx，无论是EEC还是Easy excel。*
+*我还发现一个有趣的现象，无论是EEC还是Easy excel，xls格式读取时间远小于xlsx*
 
 ## 极限内存测试
 
@@ -248,15 +243,11 @@ Easy excel | 0.628 | 2.810 | 4.55 | 32.116 | 118.69
 EEC | 3M | 3M | 3M | 5M | 7M
 Easy excel | 50M | 220M | 440M | 2400M | 5000M
 
-从上图可以看出随着文件逐渐增大easyexcel所需内存也逐渐增大，读取文件所需的内存甚至超过文件本身的大小，而EEC读文件所需内存一直比较平稳，
-且远低于easyexcel基本可以在10MB下完成大文件读取。
+从上图可以看出随着文件逐渐增大easyexcel所需内存也逐渐增大，读取文件所需的内存甚至远远超过文件本身的大小，而EEC读文件所需内存一直比较平稳且远低于easyexcel，基本可以在10MB下完成大文件读取。
 
 ## 总结
 
-通过前面的测试，我们对两款工具的便利性和性能有了一定的了解，与POI/easyexcel相比，EEC有着更新的设计理念，天然支持Worksheet分页、
-支持数据分片、支持高亮、支持流式读取、延迟读取等一些提高生产力的特性，且拥有更简洁、优雅的API也降低了接入成本。
-无论在速度优化还是内存控制方面EEC都远优于POI，毕竟POI是十几年前的产物，就算easyexcel在此基础上有极大改善但是与EEC相比还有一定差距，
-可以说EEC是目前所能找到的同类产品使用内存最小的工具，没有之一。
+通过前面的测试，我们对两款工具的便利性和性能有了一定的了解，与POI或easyexcel相比，EEC有着更新的设计理念，天然支持Worksheet分页、数据分片、支持高亮、支持流式读取、延迟读取等一些提高生产力的特性，且拥有更简洁、优雅的API也降低了接入成本。无论在速度优化还是内存控制方面EEC都远优于POI，毕竟POI是十几年前的产物，就算easyexcel在此基础上有极大改善但是与EEC相比还有一定差距，可以说EEC是目前所能找到的同类产品使用内存最小的工具，没有之一！！！
 
 虽然EEC不支持xls的写入但瑕不掩瑜，尤其是微软已经停更xls格式多年，不支持xls格式写入也不会有太多功能损失。
 

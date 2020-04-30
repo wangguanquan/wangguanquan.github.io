@@ -6,14 +6,13 @@ description: 比较EEC和alibaba开源easyexcel工具的使用便利性对比
 keywords: EEC, easyexcel
 ---
 
-本文主要对比easyexcel和EEC的使用便利性和功能对比
+本系列主要介绍Easyexcel和EEC的功能并从便利性、性能、内存等多方面全面的进行评测。
 
 ### 1. 开始
 
 #### 关于easyexcel
 
-[easyexcel](https://github.com/alibaba/easyexcel)是alibaba开发的快速、简单、且避免OOM的java处理Excel工具，于2018.2在github上开源。它是在Apache POI基础上包装而来，主要解决Apache POI高内存且API臃肿的诟病，
-easyexcel提供了比原生的POI简结很多的接口，读写Excel文件均可以一行代码完成，目前(2020.3)github上有13k个Star和3.4K个Fork。
+[easyexcel](https://github.com/alibaba/easyexcel)是alibaba开发的快速、简单、且避免OOM的java处理Excel工具，于2018.2在github上开源。它是在Apache POI基础上包装而来，主要解决Apache POI高内存且API臃肿的诟病，easyexcel提供了比原生的POI简结很多的接口，读写Excel文件均可以一行代码完成，目前(2020.3)github上有13k个Star和3.4K个Fork。
 
 引用作者总结核心原理：
 1. 文件解压、读取通过文件形式
@@ -66,9 +65,39 @@ public void test6(List<Item> data) throws IOException {
 ```
 ![test6.xlsx](/images/posts/test6.png)
 
+#### 2.2 写多个worksheet页
 
+两个工具都提供便利的方法实现多worksheet页写入，基本可以使用一行代码搞定。
 
-#### 2.2 大数据量
+easyexcel通过创建多个WriteSheet来实现
+
+```
+public void test7() {
+    EasyExcel.write(defaultTestPath.resolve("test7.xlsx").toString()).build()
+        .write(checks(), EasyExcel.writerSheet("帐单表").build())
+        .write(customers(), EasyExcel.writerSheet("客户表").build())
+        .write(c2CS(), EasyExcel.writerSheet("用户客户关系表").build())
+        .finish();
+}
+```
+
+![test7.xlsx](/images/posts/test7.png)
+
+EEC通过`addSheet`方法添加多个worksheet，看上去更直观更容易理解。
+
+```
+public void test8() throws IOException {
+    new Workbook("test8")
+        .addSheet(new ListSheet<>("帐单表", checks()))
+        .addSheet(new ListSheet<>("客户表", customers()))
+        .addSheet(new ListSheet<>("用户客户关系表", c2CS()))
+        .writeTo(defaultTestPath);
+}
+```
+
+![test8.xlsx](/images/posts/test8.png)
+
+#### 2.3 大数据量
 
 数据量较大时我们无法将数据全部装载到内存，此时需要分批写文件，好在easyexcel和EEC均支持分片处理做到边读数据边写文件。
 
@@ -122,48 +151,17 @@ private List<LargeData> data() {
 
 对于数据量巨大且使用关系型数据库的场景，EEC提供另一种方案，用户可以使用`StatementSheet`和`ResultSetSheet`两种方式，它们的工作方式是将SQL和参数交给EEC，EEC内部去查询并使用游标做到取一个值写一个值，省掉了将表数据转为Java实体的过程。
 
-#### 2.3 写多个worksheet页
-
-两个工具都提供便利的方法实现多worksheet页写入，基本可以使用一行代码搞定。
-
-easyexcel通过创建多个WriteSheet来实现
-
-```
-public void test7() {
-    EasyExcel.write(defaultTestPath.resolve("test7.xlsx").toString()).build()
-        .write(checks(), EasyExcel.writerSheet("帐单表").build())
-        .write(customers(), EasyExcel.writerSheet("客户表").build())
-        .write(c2CS(), EasyExcel.writerSheet("用户客户关系表").build())
-        .finish();
-}
-```
-
-![test7.xlsx](/images/posts/test7.png)
-
-EEC通过`addSheet`方法添加多个worksheet，看上去更直观更容易理解。
-
-```
-public void test8() throws IOException {
-    new Workbook("test8")
-        .addSheet(new ListSheet<>("帐单表", checks()))
-        .addSheet(new ListSheet<>("客户表", customers()))
-        .addSheet(new ListSheet<>("用户客户关系表", c2CS()))
-        .writeTo(defaultTestPath);
-}
-```
-
-![test8.xlsx](/images/posts/test8.png)
-
-
 ### 3. 读文件
 
 easyexcel在读文件时使用`ReadListener`来监听每行数据，这样可以做到边解析文件边做业务逻辑（插库或其它），不用把文件解析完成后再做业务逻辑，以下是解析图示：
+
 ![easyexcel解析图示](/images/posts/easyexcel解析图示.png)
 
 EEC采用迭代模式，同样做到边解析文件边做业务逻辑，解决POI的高内存问题。
+
 ![EEC解析图示](/images/posts/eec解析图示.png)
 
-从两者图示大致可以看出两者的设计与写文件时正好相反。easyexcel通过监听主动把行数据推给用户，EEC这边需要用户主动拉数据，用户真正需要某行数据时才去解析它们。
+从两者图示大致可以看出两者的设计与写文件时正好相反。easyexcel通过监听主动把行数据推给用户，EEC这边需要用户主动拉数据，只有当用户真正需要某行数据时才去解析它们来实现延迟读取。
 
 #### 3.1 easyexcel读文件
 
@@ -200,6 +198,8 @@ try (ExcelReader reader = ExcelReader.read(defaultTestPath.resolve("Large easyex
 }
 ```
 
+EEC引入java8的stream+lambda功能，你可以像操作集合类一样来操作Excel，而不用担心OOM发生。
+
 ### 3.3 读取多个worksheet页
 
 两个工具都提供方便的多worksheet读取，可以看示例
@@ -233,12 +233,12 @@ public void test9() {
 EEC示例
 
 ```
-public void test10() {
+@Test public void test10() {
     try (ExcelReader reader = ExcelReader.read(defaultTestPath.resolve("test8.xlsx"))) {
-        reader.sheets().flatMap(sheet -> {
-            System.out.println("----------" + sheet.getName() + "-----------");
-            return sheet.rows();
-        }).forEach(System.out::println);
+        reader.sheets()
+            .peek(sheet -> System.out.println("----------" + sheet.getName() + "-----------"))
+            .flatMap(Sheet::rows)
+            .forEach(System.out::println);
     } catch (IOException e) {
         e.printStackTrace();
     }
@@ -275,12 +275,39 @@ ch_id | cu_id
 try (ExcelReader reader = ExcelReader.read(defaultTestPath.resolve("Large easyexcel.xlsx"))) {
     List<LargeData> list = reader.sheets().flatMap(Sheet::dataRows)
         .map(row -> row.to(LargeData.class)).collect(Collectors.toList());
-    // 业务处理
-
+    
+    // 保存到数据库
+    save(list);
 } catch (IOException e) {
     e.printStackTrace();
 }
 ```
+
+当然我们谁也无法预料文件中有多少数据量，直接转为集合可能产生OOM，此时你可以通过`sheet#getDimension`方法先获取Worksheet的维度再按实际情况来选择执行方式，就像下面这样：
+
+```
+public void test11() {
+    try (ExcelReader reader = ExcelReader.read(defaultTestPath.resolve("test8.xlsx"))) {
+        Sheet firstSheet = reader.sheet(0);
+
+        Dimension dimension = firstSheet.getDimension();
+        // lastRow - firstRow = 数据行的行数，不包含header
+        if (dimension.lastRow - dimension.firstRow > 1000) {
+            // 如果数据量超过1千则选择流式处理，forEach里也可以收集一定量的实体再批量处理
+            firstSheet.dataRows().map(row -> row.too(Check.class)).forEach(check -> {
+                // TODO 业务处理
+            });
+        } else {
+            // 数据量小于1千则直接转为集合处理
+            List<Check> checks = firstSheet.dataRows().map(row -> row.to(Check.class)).collect(Collectors.toList());
+            // TODO 业务处理
+        }
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
+```
+
 #### 4.2 取单列数据
 
 EEC提供与JDBC类似的接口，用户可以使用`row.getX(columnNumber)`获取指定位置的值，对于读非规则表格或非表格时这是非常有效的。
@@ -302,7 +329,7 @@ try (ExcelReader reader = ExcelReader.read(defaultTestPath.resolve("二年级学
 ```
 #### 4.3 过滤某些行
 
-我相信很多时候都会遇到这样的需求，我们仅需要处理满足某些要求的数据而过滤掉检查失败的数据，这时候JDK8的`filter`就派上用场了
+我相信很多时候都会遇到这样的需求，我们仅需要处理满足某些要求的数据而过滤掉检查失败的数据，这时候`filter`就派上用场了
 
 比如我们需要打印帐单页金额大于100的记录
 
@@ -354,6 +381,7 @@ public void testStyleConversion() throws IOException {
 ```
 
 最终生成文件如下
+
 ![](/images/posts/testStyleConversion.png)
 ![](/images/posts/properties.png)
 

@@ -24,14 +24,11 @@ keywords: excel, EEC, easyexcel
 
 为了避免内存对速度的影响，测试过程中添加jvm参数`-Xmx64m -Xms1m`，限制最大堆内存为64MB，后面会有放开内存限制的测试，这里透露一下内存不是影响速度的关键因素。
 
-从BIFF5以后Office就使用SharedString方式保存字符串，使用共享字符串可以达到压缩文件的目的，但是POI使用的是`inlineStr`方式写字符串，easyexcel底层是POI所以自然的继承了这一方式，
-EEC默认也是使用inlineStr方式，可以使用注解`@ExcelColumn(share = true)`来使用SharedString方式。
-
 测试实体由29个字段组成，分别由int,long,Date,double各一个，加上25个字符串，按1000条记录进行一次分片。
 
 测试数据如下格式
 
-nv | lv | dv | av | 省 | 市 | 区/市/县 | str4 | str5 | str6 | str7 | str8 | str9 | str10 | str11 | str12 | str13 | str14 | str15 | str16 | str17 | str18 | str19 | str20 | str21 | str22 | str23 | str24 | str25
+int | long | double | date | 省 | 市 | 区/市/县 | str4 | str5 | str6 | str7 | str8 | str9 | str10 | str11 | str12 | str13 | str14 | str15 | str16 | str17 | str18 | str19 | str20 | str21 | str22 | str23 | str24 | str25
 --:|---:|---:|:--:|---|----|---------|------|------|------|------|------|------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------
 -836813678 | 3306314278648050000 | 0.29 | 2020-03-18 | str1-0 | str2-0 | str3-0 | str4-0 | str5-0 | str6-0 | str7-0 | str8-0 | str9-0 | str10-0 | str11-0 | str12-0 | str13-0 | str14-0 | str15-0 | str16-0 | str17-0 | str18-0 | str19-0 | str20-0 | str21-0 | str22-0 | str23-0 | str24-0 | str25-0
 -486185751 | -415549150152144000 | 0.04 | 2020-03-18 | str1-1 | str2-1 | str3-1  | str4-1 | str5-1 | str6-1 | str7-1 | str8-1 | str9-1 | str10-1 | str11-1 | str12-1 | str13-1 | str14-1 | str15-1 | str16-1 | str17-1 | str18-1 | str19-1 | str20-1 | str21-1 | str22-1 | str23-1 | str24-1 | str25-1
@@ -49,7 +46,7 @@ nv | lv | dv | av | 省 | 市 | 区/市/县 | str4 | str5 | str6 | str7 | str8 |
 
 ![](/images/posts/testcut.png)
 
-为了抓取jvm参数我在test100w方法里休眠了20秒钟，从测试数据上看100w空转时间为3秒。
+*为了抓取jvm参数我在test100w方法里休眠了20秒钟，从测试数据上看100w空转时间为3秒。*
 
 下面我们用图表来直观展示:
 
@@ -61,7 +58,7 @@ nv | lv | dv | av | 省 | 市 | 区/市/县 | str4 | str5 | str6 | str7 | str8 |
 
 ![读文件对比](/images/posts/chat2.png)
 
-通过上图可以简单总结: 写文件EEC平均比easyexcel快1倍以上，读文件EEC平均比easyexcel快约2倍左右。*注意: 这个结论只适用于配置较低的机器，并不适用于高主频高性能SSD的高配机*
+通过上图可以简单总结: 在64MB内存限制下，写文件EEC平均比easyexcel快1倍以上，读文件EEC平均比easyexcel快约2倍左右。
 
 ### 1.2 堆内存对比
 
@@ -78,9 +75,8 @@ nv | lv | dv | av | 省 | 市 | 区/市/县 | str4 | str5 | str6 | str7 | str8 |
 
 描述 | 1w | 5w | 10w | 50w | 100w
 ----|---:|---:|----:|----:|-----:|
-EEC | 1.7 | 8.6 | 17.2 | 86.6 | 173.4
-Easy excel | 1.7 | 8.7 | 17.4 | 87.7 | 175.7
-
+EEC | 1.7M | 8.6M | 17.2M | 86.6M | 173.4M
+Easy excel | 1.7M | 8.7M | 17.4M | 87.7M | 175.7M
 
 ### 1.4 更细节的分析
 
@@ -112,8 +108,7 @@ Easy excel | 1.7 | 8.7 | 17.4 | 87.7 | 175.7
 2020-03-05 21:46:19.556 [LargeExcelTest:250] - EEC read finished. used: 61343
 ```
 
-第一段日志是easyexcel导出100w数据，我们看到从21:34:44.412开始到21:36:17.902写完100w数据，再到21:37:09.910完成数据压缩，写数据用时93.49秒，压缩用时52.008秒。
-而EEC写100w用时27.43秒(实际比这个大一点，因为EEC使用pull方式拉数据，我们无法知道最后1000条数据完成的实际时间)，压缩用了39.373秒，写数据的速度远超easyexcel，我们进一步列出所有写数据和压缩时间
+第一段日志是easyexcel导出100w数据，我们看到从21:34:44.412开始到21:36:17.902写完100w数据，再到21:37:09.910完成数据压缩，写数据用时93.49秒，压缩用时52.008秒。而EEC写100w用时27.43秒(实际比这个大一点，因为EEC使用pull方式拉数据，我们无法知道最后1000条数据完成的实际时间)，压缩用了39.373秒，写数据的速度远超easyexcel，我们进一步列出所有写数据和压缩时间
 
 描述 | 1w | 5w | 10w | 50w | 100w
 ----|---:|---:|----:|----:|-----:|
@@ -136,7 +131,7 @@ Easy excel压缩数据 | 0.7 | 2.586 | 4.409 | 23.174 | 52.008
 
 ### 2.1 限制内存64MB测试
 
-![64MB内存测试截图](/images/posts/hi_64test.png)
+本轮限制内存64MB进行测试
 
 写文件测试
 
@@ -146,6 +141,8 @@ EEC | 0.306 | 1.530 | 3.680 | 14.807 | 32.939
 Easy excel | 0.682 | 3.443 | 6.996 | 34.415 | 78.789
 倍数 | 223% | 225% | 190% | 232% | 239%
 
+![](/images/posts/chat3.png)
+
 读文件测试
 
 描述 | 1w | 5w | 10w | 50w | 100w
@@ -154,15 +151,19 @@ EEC | 0.452 | 2.201 | 4.359 | 20.917 | 41.929
 Easy excel | 1.100 | 4.953 | 9.875 | 49.848 | 98.390
 倍数 | 243% | 225% | 227% | 238% | 235%
 
-内存和CPU使用情况，同样鼠标位置左边为easyexcel右边为EEC
+![](/images/posts/chat4.png)
 
-![](/images/posts/hi_64jvm.png)
+高配本上两者差距有所减少，EEC的速度仅比Easyexcel快一倍.
+
+内存和CPU使用情况，同样鼠标位置左边为easyexcel右边为EEC
 
 ![](/images/posts/hi_64cpu.png)
 
+![](/images/posts/hi_64jvm.png)
+
 ### 2.2 不限制内存测试
 
-![不限制内存测试截图](/images/posts/hi_gt64test.png)
+本轮我们不限制内存进行测试
 
 写文件测试
 
@@ -172,6 +173,8 @@ EEC | 0.320 | 1.506 | 3.118 | 14.922 | 37.280
 Easy excel | 0.879 | 3.304 | 6.834 | 33.375 | 76.182
 倍数 | 275% | 219% | 219% | 224% | 204%
 
+![](/images/posts/chat5.png)
+
 读文件测试
 
 描述 | 1w | 5w | 10w | 50w | 100w
@@ -180,11 +183,13 @@ EEC | 0.451 | 2.211 | 4.377 | 20.766 | 43.117
 Easy excel | 1.194 | 5.593 | 10.494 | 55.605 | 99.653
 倍数 | 265% | 253% | 240% | 268% | 231%
 
+![](/images/posts/chat6.png)
+
 内存和CPU使用情况，同样鼠标位置左边为easyexcel右边为EEC
 
-![](/images/posts/hi_gt64_jvm.png)
-
 ![](/images/posts/hi_gt64_cpu.png)
+
+![](/images/posts/hi_gt64_jvm.png)
 
 可以看出无论在高配机和低配机上，EEC的读写速度均超过easyexcel，且在一个稳定范围内。
 
@@ -195,7 +200,7 @@ Easy excel | 1.194 | 5.593 | 10.494 | 55.605 | 99.653
 
 ### 3.1 32MB内存
 
-![32MB内存](/images/posts/lo_32jvm.png)
+本轮限制内存32MB进行测试
 
 写文件测试
 
@@ -205,6 +210,8 @@ EEC | 0.578 | 2.334 | 4.586 | 25.918 | 83.500
 Easy excel | 1.331 | 6.336 | 13.671 | 65.490 | 143.368
 倍数 | 230% | 271% | 298% | 253% | 172%
 
+![](/images/posts/chat7.png)
+
 读文件测试
 
 描述 | 1w | 5w | 10w | 50w | 100w
@@ -213,23 +220,28 @@ EEC | 0.658 | 2.948 | 6.280 | 25.277 | 53.847
 Easy excel | 1.699 | 9.202 | 16.215 | 78.261 | 163.702
 倍数 | 258% | 312% | 258% | 310% | 304%
 
+![](/images/posts/chat8.png)
+
 32MB完全没问题，与64MB相比也没有明显变慢，所以内存大小并不能明显影响两个工具的性能
 
+![32MB内存](/images/posts/lo_32jvm.png)
+
 ### 3.2 16MB内存
+
+本轮限制内存16MB进行测试
 
 easyexcel并没有完成16MB的写文件测试，确切的说未完成10~100W数据写Excel文件测试，后面会贴出部分日志。所以这里我先测试EEC的读写然后再测试easyexcel在16MB限制下的读文件测试。
 
 #### 3.2.1 EEC读写测试
-
-![16MB内存](/images/posts/lo_16eec_jvm.png)
-
-![16MBCPU使用](/images/posts/lo_16eec_cpu.png)
 
 描述 | 1w | 5w | 10w | 50w | 100w
 ----|---:|---:|----:|----:|-----:|
 EEC写 | 0.576 | 2.196 | 4.824 | 22.360 | 46.903
 EEC读 | 0.672 | 2.867 | 6.286 | 25.261 | 51.137
 
+![EEC 16MBCPU使用](/images/posts/lo_16eec_cpu.png)
+
+![EEC 16MB内存](/images/posts/lo_16eec_jvm.png)
 
 #### 3.2.2 easyexcel测试
 
@@ -237,17 +249,17 @@ EEC读 | 0.672 | 2.867 | 6.286 | 25.261 | 51.137
 
 下面是测试截图
 
-![](/images/posts/lo_16m_easy_test.png)
+![Easyexcel 16MB错误截图](/images/posts/lo_16m_easy_test.png)
 
 CPU截图
 
-![](/images/posts/lo_16easy_cpu.png)
+![Easyexcel 16MBCPU波动](/images/posts/lo_16easy_cpu.png)
+
+CPU波动很大且多次爆满，内存回收活动一直占用较高CPU，有时爆到100%。相比下EEC的CPU使用就非常平稳。
 
 内存截图
 
-![](/images/posts/lo_16easy_jvm.png)
-
-CPU波动很大且多次爆满，内存回收活动一直占用较高CPU，有时爆到100%。相比下EEC的CPU使用就非常平稳。
+![Easyexcel 16MB内存波动](/images/posts/lo_16easy_jvm.png)
 
 可以看到在16MB限制下Easyexcel内存一直保持在12~13MB的高位，说明一次GC仅回收少量内存，导致程序不停GC使CPU的占用爆满。回看上面EEC的内存截图它一次回收可以释放较多的内存，也就不用一直GC占CPU了。
 
@@ -275,30 +287,17 @@ Easyexcel部分测试日志
 2020-03-08 11:03:21.814 INFO [main][LargeExcelTest:206] - 703 fill success. <-
 2020-03-08 11:03:54.896 INFO [main][LargeExcelTest:206] - 704 fill success. <-
 2020-03-08 11:04:27.861 INFO [main][LargeExcelTest:206] - 705 fill success. <-
-2020-03-08 11:05:02.006 INFO [main][LargeExcelTest:206] - 706 fill success. <-
-2020-03-08 11:05:23.921 INFO [main][LargeExcelTest:206] - 707 fill success. <-
-2020-03-08 11:05:49.776 INFO [main][LargeExcelTest:206] - 708 fill success. <-
-2020-03-08 11:07:17.917 INFO [main][LargeExcelTest:206] - 709 fill success. <-
-2020-03-08 11:08:17.004 INFO [main][LargeExcelTest:206] - 710 fill success. <-
 Exception in thread "RMI TCP Connection(idle)" java.lang.OutOfMemoryError: GC overhead limit exceeded
 Exception in thread "RMI TCP Connection(idle)" java.lang.OutOfMemoryError: GC overhead limit exceeded
 ```
 
-我们可以发现刚开始速度还很快，每100条记录只需要40ms，随着数据不断增加速度也就不断减少，应该是CPU一直被GC占用的原因。
+我们可以发现刚开始速度还很快，每100条记录只需要40ms，随着数据不断增加速度也就不断减少，后来每100条记录需要1秒钟，应该是CPU一直被GC占用的原因。
 
 Easyexcel读文件是正常的，与EEC的性能差别与32MB，64MB比较中的差别相当，这里就不贴图了。
 
 ## 4. 探底EEC最低使用内存
 
 为了探底EEC最低使用内存，我将分片调到10，也就是说每10条写一次数据(EEC内部写文件的最小单位是32，这里调到10条并没有意义)，多次调整后最终的下限为6M。
-
-6MB限制下内存波动
-
-![6M_RAM](/images/posts/lo_6m_eec_jvm.png)
-
-6MB限制下CPU波动
-
-![6M_CPU](/images/posts/lo_6m_eec_cpu.png)
 
 6MB限制下读写时间
 
@@ -307,6 +306,13 @@ Easyexcel读文件是正常的，与EEC的性能差别与32MB，64MB比较中的
 EEC写 | 0.735 | 3.3 | 6.68 | 29.724 | 58.3
 EEC读 | 0.741 | 3.145 | 6.27 | 27.17 | 62.354
 
+6MB限制下CPU波动
+
+![6M_CPU](/images/posts/lo_6m_eec_cpu.png)
+
+6MB限制下内存波动
+
+![6M_RAM](/images/posts/lo_6m_eec_jvm.png)
 
 *注意: 上面所有测试均使用inlineStr方式写字符串，SharedString方式在EEC 0.4.2版上有BUG，Issue编号[#110](https://github.com/wangguanquan/eec/issues/110)，后续版本更新后再列出性能测试*
 
