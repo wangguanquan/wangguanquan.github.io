@@ -10,7 +10,7 @@ keywords: excel, EEC, easyexcel, xls, xlsx, 海量数据
 本文是对比系列的最后一篇，主要对比两款工具在SharedString模式下的读写性能以及Excel 97~2003格式读取性能。由于easyexcel不支持SharedString模式
 、EEC不支持xls格式写文件，所以本文只对比两个工具的读性能。
 
-测试实体与上篇基本一致，只是添加了省/市/区3列文本，这3列值大概率重重，所有字符串均添加注解`@ExcelColumn(share = true)`强制使用SharedString模式。
+测试实体与上篇基本一致，只是添加了省/市/区3列文本，这3列值大概率重复(毕竟我国的省/市/区数据是确定的，有限的)，所有字符串均添加注解`@ExcelColumn(share = true)`强制使用SharedString模式。
 具体测试细节可以查看[上一篇](/excel/2020/03/03/eec-vs-easyexcel-2.html)，测试代码在这里[eec-poi-compares](https://github.com/wangguanquan/eec-poi-compares)
 
 测试文件内容如下
