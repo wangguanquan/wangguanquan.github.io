@@ -8,7 +8,7 @@ keywords: excel, EEC, easyexcel, xls, xlsx, 海量数据
 
 从BIFF8开始Office就使用SharedString方式保存字符串，使用共享字符串可以达到压缩文件的目的，但是POI使用的是`inlineStr`方式写字符串，easyexcel底层是POI所以自然的继承了这一方式，EEC默认也是使用inlineStr方式，可以使用注解`@ExcelColumn(share = true)`来使用SharedString方式。
 
-[上一篇](/excel/2020/03/05/eec-vs-easyexcel-2.html)我们对比了easyexcel和EEC两款工具在innerStr模式下读写Excel文件的性能和内存，本文是对比系列的最后一篇，主要对比两款工具在SharedString模式下的读写性能以及Excel 97~2003格式读取性能。由于easyexcel不支持SharedString模式、EEC不支持xls格式写文件，所以本文只对比两个工具的读性能。
+[上一篇](/excel/2020/03/05/eec-vs-easyexcel-2.html)我们对比了easyexcel和EEC两款工具在inlineStr模式下读写Excel文件的性能和内存，本文是对比系列的最后一篇，主要对比两款工具在SharedString模式下的读写性能以及Excel 97~2003格式读取性能。由于easyexcel不支持SharedString模式、EEC不支持xls格式写文件，所以本文只对比两个工具的读性能。
 
 
 测试实体与上篇基本一致，只是添加了省/市/区3列文本，这3列值大概率重复(毕竟我国的省/市/区数据是确定的，有限的)，所有字符串均添加注解`@ExcelColumn(share = true)`强制使用SharedString模式。具体测试细节可以查看[上一篇](/excel/2020/03/05/eec-vs-easyexcel-2.html)，测试代码在这里[eec-poi-compares](https://github.com/wangguanquan/eec-poi-compares)
@@ -58,7 +58,7 @@ CPU截图*鼠标左边为EEC，右边为Easyexcel*
 内存截图*鼠标左边为EEC，右边为Easyexcel*
 ![64MB内存测试截图](/images/posts/eve3/hi_64jvm.png)
 
-与innerStr模式相比两者速度差距有所拉大，EEC的读取速度超过easyexcel2倍
+与inlineStr模式相比两者速度差距有所拉大，EEC的读取速度超过easyexcel2倍
 
 ### 2.2. 32MB内存
 *限制内存32MB测试*
