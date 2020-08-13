@@ -134,6 +134,12 @@ logging {
   category query-errors {query-errors_log; };
 };
 
+
+zone "." IN { # 根
+  type hint;
+  file "named.ca";
+};
+
 include "/etc/named/named.rfc1912.zones";
 ```
 
@@ -167,6 +173,12 @@ logging {
   ...
 };
 
+
+zone "." IN { # 根
+  type hint;
+  file "named.ca";
+};
+
 include "/etc/named/named.rfc1912.zones";
 ```
 
@@ -175,11 +187,6 @@ include "/etc/named/named.rfc1912.zones";
 ```
 $ vim named.rfc1912.zones
 
-zone "." IN { # 根
-  type hint;
-  file "named.ca";
-};
-
 zone "abc.com" IN {
   type master;
   file "abc.com.zone"; # 这里的文件路径是相对于directory路径
@@ -187,6 +194,10 @@ zone "abc.com" IN {
   forwarders { }; # 如果本地无法解析则不递归到其它DNS
 };
 
+zone "7.168.192.in-addr.arpa" IN {
+  type master;
+  file "7.168.192.loopback";
+};
 ```
 
 #### 4. 配置zone
@@ -206,7 +217,9 @@ $TTL 10M  ;time to live  信息存放在高速缓存中的时间长度，以秒�
         IN      NS      ns.abc.com.
 ns      IN      A       192.168.7.134
 www       IN      A      192.168.7.133
-a       IN      A       127.0.0.1
+@         IN      A      192.168.7.133
+api       IN      A      192.168.7.133
+a         IN      A      192.168.7.134
 ```
 
 SOA记录：start of authority，起始授权机构，用于标示一个区的开始，其格式如下：
@@ -225,6 +238,25 @@ zone IN SOA Hostname Contact (
 - Retry 若辅助域名服务器更新数据失败，多长时间再试
 - Expire 若辅助域名服务器无法从主服务器上更新数据，原有的数据何时失效
 - Minimum 设置被缓存的否定回答的存活时间
+
+
+配置反向解析
+
+```
+$TTL 10M
+@       IN SOA  abc.com.  admin.abc.com. (
+                                        0       ; serial
+                                        1D      ; refresh
+                                        1H      ; retry
+                                        1W      ; expire
+                                        3H )    ; minimum
+           IN       NS       ns.abc.com.
+133        IN       PTR     www.abc.com.
+           IN       PTR     @.abc.com.
+           IN       PTR     api.abc.com.
+134        IN       PTR     a.abc.com.
+```
+
 
 #### 5. 根区域配置
 
@@ -260,7 +292,7 @@ $ named -u named
 $ vim /etc/resolv.conf
 
 nameserver 192.168.7.134  # 这里配置我们自己的DNS服务器地址，必须放在最前面。
-nameserver 114.114.114.114 # 当首先不可用时使用备选DNS
+nameserver 114.114.114.114 # 当首选不可用时使用备选DNS
 ```
 
 ### 测试
@@ -316,3 +348,51 @@ www.abc.com.		600	IN	A	192.168.7.133
 配置Path，将安装路径(C:\Program Files\ISC BIND 9\bin)配置到Path方便使用命令。
 
 WINDOwS差不多就这些吧，我也没有完全安装。。。
+
+### 主从 DNS 服务搭建
+
+1. 主从 DNS 的搭建开始的时候其实是和单机搭建一样的，可以将配置文件从主机完成复制到从机，然后修改主机配置"/etc/named/named.rfc1912.zones"
+
+```
+zone "abc.com" IN {
+  type master;
+  file "abc.com.zone"; # 这里的文件路径是相对于directory路径
+  allow-update { 192.168.7.133; };
+  allow-transfer { 192.168.7.133; };    # 允许同步DNS的辅助服务器IP
+  also-notify { 192.168.7.133; };
+  notify yes;                           # 启用变更通告，当主文件变更，通知从进行比较同步
+};
+
+zone "7.168.192.in-addr.arpa" IN {
+  type master;
+  file "7.168.192.loopback";
+  allow-update { 192.168.7.133; };
+  allow-transfer { 192.168.7.133; };    # 允许同步DNS的辅助服务器IP
+  also-notify { 192.168.7.133; };
+  notify yes;                           # 启用变更通告，当主文件变更，通知从进行比较同步
+};
+```
+
+重启主机服务
+
+2. 修改从服务器的"/etc/named/named.rfc1912.zones"
+
+```
+zone "abc.com" IN {
+  type slave;
+  file "slaves/abc.com.zone";
+  masters { 192.168.7.134; };   # 指定主服务器的 IP
+  masterfile-format text;       # 指定区域文件的格式为text，不指定有可能会为乱码
+};
+
+zone "7.168.192.in-addr.arpa" IN {
+  type slave;
+  file "7.168.192.loopback";
+  masters { 192.168.7.134; };   # 指定主服务器的 IP
+  masterfile-format text;       # 指定区域文件的格式为text，不指定有可能会为乱码
+};
+```
+
+我们不需要再去配置 abc.com.zone 文件，直接启动从的 dns 服务，所有的zone文件会从主节点同步过来。
+
+到此主从DNS服务已经搭建完成。
