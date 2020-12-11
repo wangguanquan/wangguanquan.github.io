@@ -407,7 +407,7 @@ public void testStyleConversion() throws IOException {
 ```
 
 生成文件
-![更多属性](/images/posts/Specify%20Core.xlsx属性.png)
+![更多属性](/images/posts/Specify%20Core.xlsx.png)
 
 ### 5. 后记
 
