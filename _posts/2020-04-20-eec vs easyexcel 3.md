@@ -79,7 +79,7 @@ CPU截图*鼠标左边为EEC，右边为Easyexcel*
 内存截图*鼠标左边为EEC，右边为Easyexcel*
 ![32MB内存测试截图](/images/posts/eve3/hi_32jvm.png)
 
-在32MB限制下easyexcel内存一直处于满载状态，且GC占用CPU很高，速度仅为EEC的1/10〜1/20。
+在32MB限制下easyexcel内存一直处于满载状态，且GC占用CPU很高，速度仅为EEC的十分之一到二十分之一。
 
 ### 2.3. 探底EEC最低使用内存
 

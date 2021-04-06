@@ -161,7 +161,7 @@ EEC采用迭代模式，同样做到边解析文件边做业务逻辑，解决PO
 
 ![EEC解析图示](/images/posts/eec解析图示.png)
 
-从两者图示大致可以看出两者的设计与写文件时正好相反。easyexcel通过监听主动把行数据推给用户，EEC这边需要用户主动拉数据，只有当用户真正需要某行数据时才去解析它们来实现延迟读取。
+从两者图示大致可以看出两者的设计与写文件时正好相反。easyexcel通过监听主动把行数据推给用户，EEC这边需要用户主动拉数据，只有当用户真正需要某行数据时才去解析它们来实现延迟读取。主动推数据给用户有一个问题是这个数据可能不是用户想要的，而这部分解析就是多余的。
 
 #### 3.1 easyexcel读文件
 
@@ -380,11 +380,34 @@ public void testStyleConversion() throws IOException {
 }
 ```
 
-最终生成文件如下
+上面添加了作者、公司名以及水印，最终生成文件如下
 
 ![](/images/posts/testStyleConversion.png)
 ![](/images/posts/properties.png)
 
+在0.4.7版本中还开放了更多文件属性，比如title(标题)，subject(主题)，keywords(标记)，category(类别)，description(备注)，version(版本)等信息
+
+示例代码
+```
+@Test public void testSpecifyCore() throws IOException {
+    Core core = new Core();
+    core.setCreator("一名光荣的测试人员");
+    core.setTitle("空白文件");
+    core.setSubject("主题");
+    core.setCategory("IT;木工");
+    core.setDescription("为了艾尔");
+    core.setKeywords("机枪兵;光头");
+    core.setVersion("1.0");
+    core.setRevision("1.2");
+    core.setLastModifiedBy("TTT");
+    
+    new Workbook("Specify Core").setCore(core)
+        .addSheet(new EmptySheet()).writeTo(defaultTestPath);
+}
+```
+
+生成文件
+![更多属性](/images/posts/Specify%20Core.xlsx.png)
 
 ### 5. 后记
 
