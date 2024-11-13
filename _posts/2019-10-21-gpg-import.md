@@ -77,3 +77,106 @@ gpg:   导入的私钥：1
     </properties>
 </profile>
 ```
+
+GPG相关命令
+### 生成 gpg 密钥
+gpg --gen-key
+
+### 生成吊销证书
+gpg --gen-revoke 5867FE8781F69B9F
+
+### 列出所有 gpg 公钥
+gpg --list-keys
+
+### 列出所有 gpg 私钥
+gpg --list-secret-keys
+
+### 删除 gpg 公钥
+gpg --delete-keys 5867FE8781F69B9F
+
+### 删除 gpg 私钥
+gpg --delete-secret-keys 5867FE8781F69B9F
+
+### 输出 gpg 公钥 ascii
+gpg --armor --output public.key --export 5867FE8781F69B9F
+
+### 输出 gpg 私钥 ascii
+gpg --armor --output private.key --export-secret-keys 5867FE8781F69B9F
+
+### 上传 gpg 公钥
+gpg --send-keys 5867FE8781F69B9F --keyserver
+
+### 查看 gpg 公钥指纹
+gpg --fingerprint 5867FE8781F69B9F
+
+### 导入 gpg 密钥(导入私钥时会自动导入公钥)
+gpg --import private.key
+
+### 加密文件
+gpg --recipient 5867FE8781F69B9F --output encrypt.file --encrypt origin.file
+
+### 解密文件
+gpg --output origin.file --decrypt encrypt.file
+
+### 文件签名，生成二进制的 gpg 文件
+gpg --sign file.txt
+
+### 文件签名，生成文本末尾追加 ASCII 签名的 asc 文件
+gpg --clearsign file.txt
+
+### 文件签名，生成二进制的 sig 文件
+gpg --detach-sign file.txt
+
+### 文件签名，生成 ASCII 格式的 asc 文件
+gpg --detach-sign file.txt
+
+### 签名并加密
+gpg --local-user 5867FE8781F69B9F --recipient 5867FE8781F69B9F --armor --sign --encrypt file.txt
+
+### 验证签名
+gpg --verify file.txt.asc file.txt
+
+### 延期
+> gpg 也是使用主密钥和子密钥结合加密的
+> pub 和 sub 分别是主公钥和子公钥
+> sec 和 ssb 分别是主私钥和子私钥
+> 如果有多个子密钥，会显示更多的 sub 和 ssb
+> 一个主密钥可以绑定多个子密钥，平时加密解密使用的都是子密钥
+gpg --edit-key guanquan.wang@yandex.com
+
+sec  rsa2048/5867FE8781F69B9F
+创建于：2019-06-10  过期于：2023-09-10  可用于：SC  
+信任度：未知        有效性：已过期
+ssb  rsa2048/1208CFFABF3A8A6D
+创建于：2019-06-10  过期于：2021-06-09  可用于：E   
+[ 过期 ] (1). guanquan.wang <guanquan.wang@yandex.com>
+
+### 指定子密钥，不指定则为主密钥
+gpg> key 1
+sec  rsa4096/1208CFFABF3A8A6D
+创建于：2019-06-10  过期于：2021-06-09  可用于：E   
+信任度：未知        有效性：未知
+
+### 更新过期时间
+gpg> expire
+
+将要变更子密钥的过期时间。
+请设定这个密钥的有效期限。
+0 = 密钥永不过期
+<n>  = 密钥在 n 天后过期
+<n>w = 密钥在 n 周后过期
+<n>m = 密钥在 n 月后过期
+<n>y = 密钥在 n 年后过期
+密钥的有效期限是？(0) 1y
+密钥于 四 11/13 19:28:25 2025 CST 过期
+这些内容正确吗？ (y/N) y
+
+sec  rsa4096/5867FE8781F69B9F
+创建于：2019-06-10  有效至：2025-11-13  可用于：SC  
+信任度：未知        有效性：未知
+ssb  rsa2048/1208CFFABF3A8A6D
+创建于：2019-06-10  过期于：2021-06-09  可用于：E   
+[ 未知 ] (1). guanquan.wang <guanquan.wang@yandex.com>
+
+### 保存
+gpg> save
