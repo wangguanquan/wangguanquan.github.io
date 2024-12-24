@@ -142,7 +142,8 @@ gpg --verify file.txt.asc file.txt
 > sec 和 ssb 分别是主私钥和子私钥
 > 如果有多个子密钥，会显示更多的 sub 和 ssb
 > 一个主密钥可以绑定多个子密钥，平时加密解密使用的都是子密钥
-gpg --edit-key guanquan.wang@yandex.com
+
+`gpg --edit-key guanquan.wang@yandex.com`
 
 sec  rsa2048/5867FE8781F69B9F
 创建于：2019-06-10  过期于：2023-09-10  可用于：SC  
